@@ -2,9 +2,11 @@
 
 package de.monticore;
 
+@Deprecated("Use de.monticore.expressions.CommonExpressions")
 component grammar CommonExpressions extends de.monticore.ExpressionsBasis {
 
-interface InfixExpression extends Expression = leftExpression:Expression operator:"" rightExpression:Expression;
+// Use "astextends after Release of MC 5.0.3 and delete TOP"
+interface InfixExpression = leftExpression:Expression operator:"" rightExpression:Expression;
   
 CallExpression implements Expression <240> =
 	Expression Arguments;

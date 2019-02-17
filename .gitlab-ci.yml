@@ -1,0 +1,55 @@
+image: maven:3.5.4-jdk-8-alpine
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2"
+  MAVEN_CLI_OPTS: "--settings settings.xml --batch-mode"
+
+cache:
+  paths:
+    - .m2/
+  key: ${CI_COMMIT_REF_SLUG} # Cache per branch
+
+
+stages:
+  - build
+  - trigger
+  - test
+
+build_dev:
+  stage: build
+  script:
+    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS install -pl .,monticore-emf-runtime,monticore-runtime"
+    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS deploy -pl monticore-grammar -P emf -Dpass=$password -Duser=$username -DdeployAtEnd=true"
+    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS clean -pl monticore-grammar"
+    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS deploy -Dpass=$password -Duser=$username -DdeployAtEnd=true"
+    - curl --request POST --form "token=$Automaton" --form ref=master https://git.rwth-aachen.de/api/v4/projects/17630/trigger/pipeline
+  only:
+    - dev
+    - ci/gitlab-runner
+
+build_branches:
+  stage: build
+  script:
+    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS install"
+  except:
+    - dev
+    - master
+    - ci/gitlab-runner
+
+integration-test:
+  stage: test
+  script:
+    - cd monticore-generator/it
+    - "mvn --settings ../../settings.xml $MAVEN_CLI_OPTS $MAVEN_OPTS clean verify"
+
+integration-test-emf:
+  stage: test
+  script:
+    - cd monticore-generator/it
+    - "mvn --settings ../../settings.xml $MAVEN_OPTS clean install -P emf-it-tests"
+
+integration-test-experiments:
+  stage: test
+  script:
+    - cd monticore-generator/it/experiments
+    - "mvn --settings ../../../settings.xml $MAVEN_OPTS clean install"

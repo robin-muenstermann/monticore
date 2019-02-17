@@ -2,6 +2,7 @@
 
 package de.monticore;
 
+@Deprecated("Use de.monticore.expressions.ShiftExpressions")
 component grammar ShiftExpressions extends de.monticore.ExpressionsBasis {
 
 QualifiedNameExpression implements Expression <290> = 
@@ -13,7 +14,10 @@ ThisExpression implements Expression <280> =
 ArrayExpression implements Expression <250> =
 	Expression "[" indexExpression:Expression "]";
 
-interface ShiftExpression;
+// Use "astextends after Release of MC 5.0.3 and delete TOP"
+interface ShiftExpression =
+	leftExpression:Expression shiftOp:"" rightExpression:Expression;
+
 // It is not possible to define "<<", ">>" or ">>>".
 // Parsing generic typs like "List<List<String>>" leads to problems.
 		
