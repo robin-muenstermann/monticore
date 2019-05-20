@@ -1,5 +1,5 @@
 <#-- (c) https://github.com/MontiCore/monticore -->
-${tc.signature("astType", "symbolTablePackage", "cd", "symbols")}
+${tc.signature("symbolVisitorName", "astType", "symbolTablePackage", "cd", "symbols")}
 <#assign genHelper = glex.getGlobalVar("visitorHelper")>
 
 <#-- Copyright -->
@@ -12,22 +12,23 @@ package ${genHelper.getVisitorPackage()};
 import ${symbolTablePackage}.*;
 </#if>
 import de.monticore.symboltable.Symbol;
+import de.monticore.symboltable.ISymbol;
 
 /**
- * Default symbol-visitor for the {@code ${genHelper.getCdName()}} language.<br/>
- * <br/>
- * <b>Running a visitor</b>: Starting a traversal of a symbol is as simple as calling {@code handle(symbol)}. Note that the visitor only handles nodes of language {@code ${genHelper.getCdName()}}.<br/>
- * <br/>
- * <b>Implementing a visitor:</b><br/>
- * You should never use {@code this}, but always make use of {@link #getRealThis()}. This ensures that the visitor can be reused by composition.<br/>
- * <br/>
+ * Default symbol-visitor for the {@code ${genHelper.getCdName()}} language.<br>
+ * <br>
+ * <b>Running a visitor</b>: Starting a traversal of a symbol is as simple as calling {@code handle(symbol)}. Note that the visitor only handles nodes of language {@code ${genHelper.getCdName()}}.<br>
+ * <br>
+ * <b>Implementing a visitor:</b><br>
+ * You should never use {@code this}, but always make use of {@link #getRealThis()}. This ensures that the visitor can be reused by composition.<br>
+ * <br>
  * <ul>
- *   <li><b>Visiting nodes</b>: You may override the {@code visit(node)} and {@code endVisit(node)} methods to do something at specific symbol nodes.<br/><br/></li>
- *   <li><b>Traversal</b>: You may override the {@code traverse(node)} methods, if you want to change the climb down strategy for traversing children (e.g. ordering the children). Be aware of the underlying double-dispatch mechanism: probably you want to call {@code childNode.accept(getRealThis())} and <b>not</b> {@code handle(childNode)}<br/><br/></li>
- *   <li><b>Handling of nodes</b>: You may override the {@code handle(node)} methods, if you want to change its default implementation (depth-first iteration): {@code visit(node); traverse(node); endVisit(node);}<br/><br/></li>
+ *   <li><b>Visiting nodes</b>: You may override the {@code visit(node)} and {@code endVisit(node)} methods to do something at specific symbol nodes.<br><br></li>
+ *   <li><b>Traversal</b>: You may override the {@code traverse(node)} methods, if you want to change the climb down strategy for traversing children (e.g. ordering the children). Be aware of the underlying double-dispatch mechanism: probably you want to call {@code childNode.accept(getRealThis())} and <b>not</b> {@code handle(childNode)}<br><br></li>
+ *   <li><b>Handling of nodes</b>: You may override the {@code handle(node)} methods, if you want to change its default implementation (depth-first iteration): {@code visit(node); traverse(node); endVisit(node);}<br><br></li>
  * </ul>
  */
-public interface ${genHelper.getSymbolVisitorType()} { 
+public interface ${symbolVisitorName} { 
 
   /**
    * Sets the visitor to use for handling and traversing nodes.
@@ -49,14 +50,14 @@ public interface ${genHelper.getSymbolVisitorType()} {
   /**
    * By default this method returns {@code this}. Visitors intended for reusage
    * in other languages should override this method together with
-   * {@link #setRealThis(${genHelper.getVisitorType()})} to make a visitor
+   * {@link ${genHelper.getVisitorType()}#setRealThis(${genHelper.getVisitorType()})} to make a visitor
    * composable.
-   * See {@link #setRealThis(${genHelper.getVisitorType()})} for more information.
-   * @see #setRealThis(${genHelper.getVisitorType()})
+   * See {@link ${genHelper.getVisitorType()}#setRealThis(${genHelper.getVisitorType()})} for more information.
+   * @see ${genHelper.getVisitorType()}#setRealThis(${genHelper.getVisitorType()})
    * @see ${genHelper.getCdName()}DelegatorVisitor
    */
   default public ${genHelper.getSymbolVisitorType()} getRealThis() {
-    return this;
+    return (${genHelper.getSymbolVisitorType()}) this;
   }
   
   /* ------------------------------------------------------------------------*/
@@ -80,8 +81,18 @@ public interface ${genHelper.getSymbolVisitorType()} {
    */
   default public void endVisit(Symbol symbol) {
   }
-  
-  /* ------------------------------------------------------------------------*/
+
+  /**
+   * By default this method is not called, because the default visitor only
+   * visits a symbol in its dynamic runtime type. Use an InheritanceVisitor
+   * if you want to visit a node in its super types as well.
+   *
+   * @param symbol the symbol that is left
+   */
+  default public void handle(ISymbol symbol) {
+  }
+
+ /* ------------------------------------------------------------------------*/
   
   
   <#list symbols as symbol>

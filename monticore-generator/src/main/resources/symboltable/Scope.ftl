@@ -28,7 +28,7 @@ import java.util.Collection;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.modifiers.AccessModifier;
 import de.monticore.symboltable.resolving.ResolvingInfo;
-import de.monticore.symboltable.MutableScope;
+import de.monticore.symboltable.Scope;
 
 public class ${className} ${superClass} ${superInterfaces} {
 
@@ -40,10 +40,10 @@ public class ${className} ${superClass} ${superInterfaces} {
     super(isShadowingScope);
   }
 
-  public ${className}(Optional<MutableScope> enclosingScope) {
+  public ${className}(Optional<Scope> enclosingScope) {
     super(enclosingScope, true);
-  }
-  
+    }
+
   <#list symbolNames?keys as symbol>
   // all resolve Methods for ${symbol}
   public Optional<${symbolNames[symbol]}> resolve${symbol}(String name) {
@@ -142,9 +142,9 @@ public class ${className} ${superClass} ${superInterfaces} {
   </#if>
   
   <#assign langVisitorType = names.getQualifiedName(genHelper.getVisitorPackage(), genHelper.getGrammarSymbol().getName() + "ScopeVisitor")>
-  public void accept(${langVisitorType} visitor) {
+    public void accept(${langVisitorType} visitor) {
   <#if genHelper.isSupertypeOfHWType(className, "")>
-  <#assign plainName = className?remove_ending("TOP")>
+    <#assign plainName = className?remove_ending("TOP")>
     if (this instanceof ${plainName}) {
       visitor.handle((${plainName}) this);
     } else {
@@ -153,7 +153,7 @@ public class ${className} ${superClass} ${superInterfaces} {
   <#else>
     visitor.handle(this);
   </#if>
-  }
+    }
   
   <#list superScopeVisitors as superScopeVisitor>
   public void accept(${superScopeVisitor} visitor) {
@@ -164,4 +164,4 @@ public class ${className} ${superClass} ${superInterfaces} {
     }
   }
   </#list>
-}
+    }

@@ -31,40 +31,64 @@ public class MCFullGenericTypesPrettyPrinter extends MCSimpleGenericTypesPrettyP
 
   @Override
   public void handle(ASTMCWildcardType node) {
-    getPrinter().print("? ");
+    getPrinter().print("?");
     if (node.isPresentUpperBound()) {
-      getPrinter().print("extends ");
+      getPrinter().print(" extends ");
       node.getUpperBound().accept(getRealThis());
     } else if (node.isPresentLowerBound()) {
-      getPrinter().print("super ");
+      getPrinter().print(" super ");
       node.getLowerBound().accept(getRealThis());
     }
   }
 
   @Override
+  public void handle(ASTMCInnerType innerType) {
+    getPrinter().print(innerType.getName());
+    if(!innerType.getMCTypeArgumentList().isEmpty()) {
+      getPrinter().print("<");
+      String komma = "";
+      for (ASTMCTypeArgument arg : innerType.getMCTypeArgumentList()) {
+        getPrinter().print(komma);
+        arg.accept(getRealThis());
+        komma = ",";
+      }
+      getPrinter().print(">");
+    }
+
+  }
+
+  @Override
   public void handle(ASTMCMultipleGenericType node) {
-    boolean first = true;
-    for (ASTMCBasicGenericType referenceType : node.getMCBasicGenericTypeList()) {
-      if (!first) {
-        getPrinter().print(".");
-      } else {
-        first = false;
-      }
-      referenceType.accept(getRealThis());
+    // prints first part a.b.C.E<F>
+    node.getMCBasicGenericType().accept(getRealThis());
+
+    for(ASTMCInnerType innerType : node.getMCInnerTypeList()) {
+      getPrinter().print(".");
+      innerType.accept(getRealThis());
     }
-    getPrinter().print(".");
-    getPrinter().print(String.join(".", node.getNameList()));
-    getPrinter().print("<");
-    first = true;
-    for (ASTMCTypeArgument argument : node.getMCTypeArgumentList()) {
-      if (!first) {
-        getPrinter().print(", ");
-      } else {
-        first = false;
-      }
-      argument.accept(getRealThis());
-    }
-    getPrinter().print(">");
+
+//    boolean first = true;
+//    for (ASTMCBasicGenericType referenceType : node.getMCBasicGenericTypeList()) {
+//      if (!first) {
+//        getPrinter().print(".");
+//      } else {
+//        first = false;
+//      }
+//      referenceType.accept(getRealThis());
+//    }
+//    getPrinter().print(".");
+//    getPrinter().print(String.join(".", node.getNameList()));
+//    getPrinter().print("<");
+//    first = true;
+//    for (ASTMCTypeArgument argument : node.getMCTypeArgumentList()) {
+//      if (!first) {
+//        getPrinter().print(", ");
+//      } else {
+//        first = false;
+//      }
+//      argument.accept(getRealThis());
+//    }
+//    getPrinter().print(">");
 
   }
 
@@ -86,7 +110,7 @@ public class MCFullGenericTypesPrettyPrinter extends MCSimpleGenericTypesPrettyP
         if (first) {
           first = false;
         } else {
-          getPrinter().print(" & ");
+          getPrinter().print(" &" );
         }
         type.accept(getRealThis());
       }
