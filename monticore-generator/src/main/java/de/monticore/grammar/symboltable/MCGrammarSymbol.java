@@ -75,13 +75,13 @@ public class MCGrammarSymbol extends CommonScopeSpanningSymbol {
   }
 
   public List<MCGrammarSymbol> getAllSuperGrammars() {
-    List<MCGrammarSymbol> superGrammars = new ArrayList<>(this.getSuperGrammarSymbols());
+    List<MCGrammarSymbol> supGrammars = new ArrayList<>(this.getSuperGrammarSymbols());
     List<MCGrammarSymbol> superSuperGrammars = new ArrayList<>();
-    for (MCGrammarSymbol superGrammar : superGrammars) {
-      superSuperGrammars.addAll(superGrammar.getAllSuperGrammars());
+    for (MCGrammarSymbol superGrammar : supGrammars) {
+      superGrammar.getAllSuperGrammars().stream().filter(s -> !superSuperGrammars.contains(s)).forEach(s -> superSuperGrammars.add(s));
     }
-    superGrammars.addAll(superSuperGrammars);
-    return copyOf(superGrammars);
+    superSuperGrammars.stream().filter(s -> !supGrammars.contains(s)).forEach(s->supGrammars.add(s));
+    return copyOf(supGrammars);
   }
 
   public void addSuperGrammar(MCGrammarSymbolReference superGrammarRef) {

@@ -1,871 +1,635 @@
 package de.monticore.typescalculator;
 
-import de.monticore.expressions.commonexpressions._ast.*;
+import de.monticore.antlr4.MCConcreteParser;
 import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
+import de.monticore.expressions.expressionsbasis._symboltable.EMethodSymbol;
+import de.monticore.expressions.expressionsbasis._symboltable.EVariableSymbol;
+import de.monticore.expressions.expressionsbasis._symboltable.ExpressionsBasisLanguage;
+import de.monticore.expressions.expressionsbasis._symboltable.ExpressionsBasisScope;
 import de.monticore.types.mcbasictypes._ast.ASTConstantsMCBasicTypes;
-import de.monticore.types.mcbasictypes._ast.ASTMCPrimitiveType;
 import de.monticore.types.mcbasictypes._ast.ASTMCType;
-import de.monticore.types.mcbasictypestest._parser.MCBasicTypesTestParser;
-import de.monticore.typescalculator.testcommonexpressions._ast.ASTDoubleExpression;
-import de.monticore.typescalculator.testcommonexpressions._ast.ASTIntExpression;
-import de.monticore.typescalculator.testcommonexpressions._parser.TestCommonExpressionsParser;
+import de.monticore.types.mcbasictypes._ast.MCBasicTypesMill;
+import de.monticore.types.mcbasictypes._symboltable.MCTypeSymbol;
+import de.monticore.typescalculator.combineexpressionswithliterals._parser.CombineExpressionsWithLiteralsParser;
+import de.se_rwth.commons.logging.Log;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class CommonExpressionsTest {
 
-  @Test
-  public void parseTest() throws IOException {
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9+9");
-    Optional<ASTExpression> r = p.parse_StringExpression("9.32+4.08");
-    Optional<ASTExpression> s = p.parse_StringExpression("3*4");
+  private ExpressionsBasisScope scope;
+
+
+  @Before
+  public void setup(){
+    ExpressionsBasisLanguage expressionsBasisLanguage=new ExpressionsBasisLanguage("CombineExpressionsWithLiteralsWithLiterals","exp") {
+      @Override
+      public MCConcreteParser getParser() {
+        return new CombineExpressionsWithLiteralsParser();
+      }
+    };
+    Log.enableFailQuick(false);
+
+    this.scope=new ExpressionsBasisScope();
+    scope.setResolvingFilters(expressionsBasisLanguage.getResolvingFilters());
+
+    EVariableSymbol symbol = new EVariableSymbol("varInt");
+    MCTypeSymbol typeSymbol = new MCTypeSymbol("int");
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build());
+    typeSymbol.setEVariableSymbol(symbol);
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    symbol = new EVariableSymbol("varDouble");
+    typeSymbol = new MCTypeSymbol("double");
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build());
+    typeSymbol.setEVariableSymbol(symbol);
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    symbol = new EVariableSymbol("varString");
+    List<String> name = new ArrayList<>();
+    name.add("java");
+    name.add("lang");
+    name.add("String");
+    typeSymbol = new MCTypeSymbol("java.lang.String");
+    typeSymbol.setEVariableSymbol(symbol);
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build());
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    symbol = new EVariableSymbol("varList");
+    name = new ArrayList<>();
+    name.add("java");
+    name.add("util");
+    name.add("List");
+    typeSymbol = new MCTypeSymbol("java.lang.String");
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build());
+    typeSymbol.setEVariableSymbol(symbol);
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    symbol = new EVariableSymbol("varChar");
+    typeSymbol= new MCTypeSymbol("char");
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.CHAR).build());
+    typeSymbol.setEVariableSymbol(symbol);
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    symbol = new EVariableSymbol("varInteger");
+    name=new ArrayList<>();
+    name.add("java");
+    name.add("lang");
+    name.add("Integer");
+    typeSymbol=new MCTypeSymbol("java.lang.Integer");
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build());
+    typeSymbol.setEVariableSymbol(symbol);
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    EVariableSymbol symbolB = new EVariableSymbol("varB");
+    name=new ArrayList<>();
+    name.add("B");
+    typeSymbol=new MCTypeSymbol("B");
+    typeSymbol.setEVariableSymbol(symbolB);
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build());
+    symbolB.setMCTypeSymbol(typeSymbol);
+
+    symbol = new EVariableSymbol("varA");
+    name=new ArrayList<>();
+    name.add("A");
+    typeSymbol=new MCTypeSymbol("A");
+    List<MCTypeSymbol> subtypes= new ArrayList<>();
+    subtypes.add(symbolB.getMCTypeSymbol());
+    typeSymbol.setSubtypes(subtypes);
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build());
+    typeSymbol.setEVariableSymbol(symbol);
+    symbol.setMCTypeSymbol(typeSymbol);
+    List<MCTypeSymbol> superTypes= new ArrayList<>();
+    superTypes.add(symbol.getMCTypeSymbol());
+    symbolB.getMCTypeSymbol().setSupertypes(superTypes);
+    scope.add(symbolB);
+    scope.add(symbol);
+
+    symbol = new EVariableSymbol("varName");
+    name=new ArrayList<>();
+    name.add("Test");
+    typeSymbol= new MCTypeSymbol("Name");
+    ASTMCType type = MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build();
+    typeSymbol.setASTMCType(type);
+    typeSymbol.setEVariableSymbol(symbol);
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    EMethodSymbol methodSymbol = new EMethodSymbol("call");
+    typeSymbol = new MCTypeSymbol("call");
+    typeSymbol.setMethodSymbol(methodSymbol);
+    methodSymbol.setMCTypeSymbol(typeSymbol);
+    methodSymbol.setReturnType(MCBasicTypesMill.mCReturnTypeBuilder().setMCType(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build()).build());
+    scope.add(methodSymbol);
+
+    ExpressionsBasisScope ascope = new ExpressionsBasisScope();
+    scope.addSubScope(ascope);
+    ascope.setName("A");
+    ExpressionsBasisScope bscope = new ExpressionsBasisScope();
+    bscope.setName("B");
+    ascope.addSubScope(bscope);
+    ExpressionsBasisScope cscope = new ExpressionsBasisScope();
+    cscope.setName("C");
+    bscope.addSubScope(cscope);
+
+    cscope.add(methodSymbol);
+
+
+    symbol = new EVariableSymbol("QName");
+    name=new ArrayList<>();
+    typeSymbol= new MCTypeSymbol("QName");
+    type = MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build();
+    typeSymbol.setASTMCType(type);
+    typeSymbol.setEVariableSymbol(symbol);
+    symbol.setMCTypeSymbol(typeSymbol);
+    cscope.add(symbol);
+
+    symbol = new EVariableSymbol("varBool");
+    typeSymbol=new MCTypeSymbol("boolean");
+    typeSymbol.setEVariableSymbol(symbol);
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build());
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    symbol = new EVariableSymbol("varBool2");
+    typeSymbol=new MCTypeSymbol("boolean");
+    typeSymbol.setEVariableSymbol(symbol);
+    typeSymbol.setASTMCType(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build());
+    symbol.setMCTypeSymbol(typeSymbol);
+    scope.add(symbol);
+
+    methodSymbol = new EMethodSymbol("test");
+    
   }
 
-  @Test
-  public void plusIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9+9");
-    ASTPlusExpression expr = (ASTPlusExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType plustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isInt());
-    assertTrue(plustype.isInt());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("int").get();
-    assertTrue(type.deepEquals(type2));
-  }
 
   @Test
-  public void moduloIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9%9");
-    ASTModuloExpression expr = (ASTModuloExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType plustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isInt());
-    assertTrue(plustype.isInt());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("int").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void moduloIntVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9%7");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void plusIntVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9+7");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void multIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("7*8");
-    ASTMultExpression expr = (ASTMultExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType multtype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isInt());
-    assertTrue(multtype.isInt());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("int").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void multIntVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9*7");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void divideIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("7/8");
-    ASTDivideExpression expr = (ASTDivideExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType dividetype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isInt());
-    assertTrue(dividetype.isInt());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("int").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void divideIntVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9/7");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void minusIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("7-8");
-    ASTMinusExpression expr = (ASTMinusExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType minustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isInt());
-    assertTrue(minustype.isInt());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("int").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void minusIntVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9-7");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void plusDoubleTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("3.14+9.07");
-    ASTPlusExpression expr = (ASTPlusExpression) o.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType plustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isDouble());
-    assertTrue(plustype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void plusDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9.13+7.73");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void moduloDoubleTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("3.14%9.07");
-    ASTModuloExpression expr = (ASTModuloExpression) o.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType plustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isDouble());
-    assertTrue(plustype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void moduloDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9.13%7.73");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void multDoubleTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("7.67*8.05");
-    ASTMultExpression expr = (ASTMultExpression) o.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType multtype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isDouble());
-    assertTrue(multtype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void multDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9.13*7.73");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void divideDoubleTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("3.14/9.07");
-    ASTDivideExpression expr = (ASTDivideExpression) o.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType dividetype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isDouble());
-    assertTrue(dividetype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void divideDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9.13/7.73");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void minusDoubleTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("3.14-9.07");
-    ASTMinusExpression expr = (ASTMinusExpression) o.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType minustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isDouble());
-    assertTrue(minustype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void minusDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9.13-7.73");
-    assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
-  }
-
-  @Test
-  public void plusDoubleIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9+7.73");
-    Optional<ASTExpression> q = p.parse_StringExpression("7.4+3");
-
-    ASTPlusExpression expr = (ASTPlusExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType plustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isDouble());
-    assertTrue(plustype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-
-    calc = new TestCommonExpressionTypesCalculator();
-    expr = (ASTPlusExpression) q.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    types = calc.getTypes();
-    left = expr.getLeft();
-    right = expr.getRight();
-    assertTrue(types.size()==3);
-    lefttype = (ASTMCPrimitiveType) types.get(left);
-    righttype = (ASTMCPrimitiveType) types.get(right);
-    plustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isInt());
-    assertTrue(plustype.isDouble());
-    type = calc.getResult();
-    type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void plusIntDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+  public void plusTest() throws IOException{
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("9+7.73");
     Optional<ASTExpression> q = p.parse_StringExpression("7.4+3");
 
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(o.get())));
 
     assertTrue(q.isPresent());
-    q.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(q.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("9.13+7.73");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("9+7");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(s.get())));
+
+    Optional<ASTExpression> t = p.parse_StringExpression("9l+10.0f");
+    assertTrue(t.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.FLOAT).build().deepEquals(calc.calculateType(t.get())));
+
+    Optional<ASTExpression> u = p.parse_StringExpression("\'a\'+13.4");
+    assertTrue(u.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(u.get())));
+
+    Optional<ASTExpression> v = p.parse_StringExpression("\'a\'+\'b\'");
+    assertTrue(v.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(v.get())));
+
+    List<String> name = new ArrayList<>();
+    name.add("String");
+    Optional<ASTExpression> w = p.parse_StringExpression("\"Hallo\"+\" Welt\"");
+    assertTrue(w.isPresent());
+    assertTrue(MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build().deepEquals(calc.calculateType(w.get())));
+
+    Optional<ASTExpression> x = p.parse_StringExpression("\"Hallo\"+4.3f");
+    assertTrue(x.isPresent());
+    assertTrue(MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build().deepEquals(calc.calculateType(x.get())));
   }
 
   @Test
-  public void moduloDoubleIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9%7.73");
-    Optional<ASTExpression> q = p.parse_StringExpression("7.4%3");
-
-    ASTModuloExpression expr = (ASTModuloExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType plustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isDouble());
-    assertTrue(plustype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-
-    calc = new TestCommonExpressionTypesCalculator();
-    expr = (ASTModuloExpression) q.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    types = calc.getTypes();
-    left = expr.getLeft();
-    right = expr.getRight();
-    assertTrue(types.size()==3);
-    lefttype = (ASTMCPrimitiveType) types.get(left);
-    righttype = (ASTMCPrimitiveType) types.get(right);
-    plustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isInt());
-    assertTrue(plustype.isDouble());
-    type = calc.getResult();
-    type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void moduloIntDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+  public void moduloTest() throws IOException{
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("9%7.73");
     Optional<ASTExpression> q = p.parse_StringExpression("7.4%3");
 
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(o.get())));
 
     assertTrue(q.isPresent());
-    q.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(q.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("9.13%7.73");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("9%7");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(s.get())));
+
+    Optional<ASTExpression> t = p.parse_StringExpression("9l%10.0f");
+    assertTrue(t.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.FLOAT).build().deepEquals(calc.calculateType(t.get())));
+
+    Optional<ASTExpression> u = p.parse_StringExpression("\'a\'%13.4");
+    assertTrue(u.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(u.get())));
+
+    Optional<ASTExpression> v = p.parse_StringExpression("\'a\'%\'b\'");
+    assertTrue(v.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(v.get())));
   }
 
   @Test
-  public void multDoubleIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9*7.73");
-    Optional<ASTExpression> q = p.parse_StringExpression("7.4*3");
-
-    ASTMultExpression expr = (ASTMultExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType multtype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isDouble());
-    assertTrue(multtype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-
-    calc = new TestCommonExpressionTypesCalculator();
-    expr = (ASTMultExpression) q.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    types = calc.getTypes();
-    left = expr.getLeft();
-    right = expr.getRight();
-    assertTrue(types.size()==3);
-    lefttype = (ASTMCPrimitiveType) types.get(left);
-    righttype = (ASTMCPrimitiveType) types.get(right);
-    multtype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isInt());
-    assertTrue(multtype.isDouble());
-    type = calc.getResult();
-    type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void multIntDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+  public void multTest() throws IOException{
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("9*7.73");
     Optional<ASTExpression> q = p.parse_StringExpression("7.4*3");
 
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(o.get())));
 
     assertTrue(q.isPresent());
-    q.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(q.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("9.13*7.73");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("9*7");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(s.get())));
+
+    Optional<ASTExpression> t = p.parse_StringExpression("9l*10.0f");
+    assertTrue(t.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.FLOAT).build().deepEquals(calc.calculateType(t.get())));
+
+    Optional<ASTExpression> u = p.parse_StringExpression("\'a\'*13.4");
+    assertTrue(u.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(u.get())));
+
+    Optional<ASTExpression> v = p.parse_StringExpression("\'a\'*\'b\'");
+    assertTrue(v.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(v.get())));
   }
 
   @Test
-  public void divideDoubleIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9/7.73");
-    Optional<ASTExpression> q = p.parse_StringExpression("7.4/3");
-
-    ASTDivideExpression expr = (ASTDivideExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType dividetype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isDouble());
-    assertTrue(dividetype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-
-    calc = new TestCommonExpressionTypesCalculator();
-    expr = (ASTDivideExpression) q.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    types = calc.getTypes();
-    left = expr.getLeft();
-    right = expr.getRight();
-    assertTrue(types.size()==3);
-    lefttype = (ASTMCPrimitiveType) types.get(left);
-    righttype = (ASTMCPrimitiveType) types.get(right);
-    dividetype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isInt());
-    assertTrue(dividetype.isDouble());
-    type = calc.getResult();
-    type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void divideIntDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+  public void divideTest() throws IOException{
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("9/7.73");
     Optional<ASTExpression> q = p.parse_StringExpression("7.4/3");
 
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(o.get())));
 
     assertTrue(q.isPresent());
-    q.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(q.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("9.13/7.73");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("9/7");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(s.get())));
+
+    Optional<ASTExpression> t = p.parse_StringExpression("9l/10.0f");
+    assertTrue(t.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.FLOAT).build().deepEquals(calc.calculateType(t.get())));
+
+    Optional<ASTExpression> u = p.parse_StringExpression("\'a\'/13.4");
+    assertTrue(u.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(u.get())));
+
+    Optional<ASTExpression> v = p.parse_StringExpression("\'a\'/\'b\'");
+    assertTrue(v.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(v.get())));
   }
 
   @Test
-  public void minusDoubleIntTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9-7.73");
-    Optional<ASTExpression> q = p.parse_StringExpression("7.4-3");
-
-    ASTMinusExpression expr = (ASTMinusExpression) o.get();
-    calc.endVisit((ASTIntExpression) expr.getLeft());
-    calc.endVisit((ASTDoubleExpression) expr.getRight());
-    calc.endVisit(expr);
-    Map<ASTExpression,ASTMCType> types = calc.getTypes();
-    ASTExpression left = expr.getLeft();
-    ASTExpression right = expr.getRight();
-    assertTrue(types.size()==3);
-    ASTMCPrimitiveType lefttype = (ASTMCPrimitiveType) types.get(left);
-    ASTMCPrimitiveType righttype = (ASTMCPrimitiveType) types.get(right);
-    ASTMCPrimitiveType minustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isInt());
-    assertTrue(righttype.isDouble());
-    assertTrue(minustype.isDouble());
-    ASTMCType type = calc.getResult();
-    ASTMCType type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-
-    calc = new TestCommonExpressionTypesCalculator();
-    expr = (ASTMinusExpression) q.get();
-    calc.endVisit((ASTDoubleExpression) expr.getLeft());
-    calc.endVisit((ASTIntExpression) expr.getRight());
-    calc.endVisit(expr);
-    types = calc.getTypes();
-    left = expr.getLeft();
-    right = expr.getRight();
-    assertTrue(types.size()==3);
-    lefttype = (ASTMCPrimitiveType) types.get(left);
-    righttype = (ASTMCPrimitiveType) types.get(right);
-    minustype = (ASTMCPrimitiveType) types.get(expr);
-    assertTrue(lefttype.isDouble());
-    assertTrue(righttype.isInt());
-    assertTrue(minustype.isDouble());
-    type = calc.getResult();
-    type2 = parser.parse_StringMCType("double").get();
-    assertTrue(type.deepEquals(type2));
-  }
-
-  @Test
-  public void minusIntDoubleVisitorTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+  public void minusTest() throws IOException{
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("9-7.73");
     Optional<ASTExpression> q = p.parse_StringExpression("7.4-3");
 
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(o.get())));
 
     assertTrue(q.isPresent());
-    q.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(q.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("9.13-7.73");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("9-7");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(s.get())));
+
+    Optional<ASTExpression> t = p.parse_StringExpression("9l-10.0f");
+    assertTrue(t.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.FLOAT).build().deepEquals(calc.calculateType(t.get())));
+
+    Optional<ASTExpression> u = p.parse_StringExpression("\'a\'-13.4");
+    assertTrue(u.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(u.get())));
+
+    Optional<ASTExpression> v = p.parse_StringExpression("\'a\'-\'b\'");
+    assertTrue(v.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(v.get())));
   }
 
   @Test
   public void lessThanTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("4<7");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("4.5f<7l");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("4.5<\'a\'");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(s.get())));
   }
 
   @Test
   public void greaterThanTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("15>9");
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
+    Optional<ASTExpression> o = p.parse_StringExpression("15>9.2");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("4.5f>7l");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("4.5>\'a\'");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(s.get())));
   }
 
   @Test
   public void lessEqualTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("4<=7");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("4.5f<=7l");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("4.5<=\'a\'");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(s.get())));
   }
 
   @Test
   public void greaterEqualTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("4>=7");
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
+    Optional<ASTExpression> o = p.parse_StringExpression("4>=2.7");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("4.5f>=7l");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("4.5>=\'a\'");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(s.get())));
   }
 
   @Test
   public void logicalNotTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("!true");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("!(3<=7)");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
   }
 
   @Test
   public void booleanOrOpTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("true||false");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("(4>3)||varBool");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
+
+
   }
 
   @Test
   public void booleanAndOpTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("true&&true");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("(4>3)&&varBool");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
   }
 
   @Test
   public void notEqualsTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("3!=4");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("\"Hallo\"!=\"Welt\"");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> q = p.parse_StringExpression("varList!=varList");
+    assertTrue(q.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(q.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("7.9f!=8l");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(s.get())));
   }
 
   @Test
   public void equalsTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("7==7");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("\"Hallo\"==\"Welt\"");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> q = p.parse_StringExpression("varList==varList");
+    assertTrue(q.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(q.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("7.9f==8l");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(s.get())));
   }
 
   @Test
   public void bracketTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("(7+8)");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(o.get())));
 
-    calc = new TestCommonExpressionTypesCalculator();
-    p = new TestCommonExpressionsParser();
-    o = p.parse_StringExpression("(7.56-2.67)");
+    o = p.parse_StringExpression("(7-2.5)");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
-  }
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(o.get())));
 
-  @Test
-  public void simpleAssignmentTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("7+=9");
+    o = p.parse_StringExpression("(false==(4<3))");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(o.get())));
+
+    o = p.parse_StringExpression("(7l-2.5f)");
+    assertTrue(o.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.FLOAT).build().deepEquals(calc.calculateType(o.get())));
   }
 
   @Test
   public void conditionalTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("7.32<3? 7.32 : 3");
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
+    Optional<ASTExpression> o = p.parse_StringExpression("7<3? 7 : 3");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("7.2<3? 7.2 : 3");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("7.2f<3l? 7.2f : 3l");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.FLOAT).build().deepEquals(calc.calculateType(s.get())));
+
+    List<String> name = new ArrayList<>();
+    name.add("String");
+    Optional<ASTExpression> t = p.parse_StringExpression("(\"Hallo\"==\"Welt\")? \"Gleich\" : \"Ungleich\"");
+    assertTrue(t.isPresent());
+    assertTrue(MCBasicTypesMill.mCQualifiedTypeBuilder().setMCQualifiedName(MCBasicTypesMill.mCQualifiedNameBuilder().setPartList(name).build()).build().deepEquals(calc.calculateType(t.get())));
   }
 
   @Test
   public void booleanNotTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
     Optional<ASTExpression> o = p.parse_StringExpression("~7");
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> r = p.parse_StringExpression("~7l");
+    assertTrue(r.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.LONG).build().deepEquals(calc.calculateType(r.get())));
+
+    Optional<ASTExpression> s = p.parse_StringExpression("~\'a\'");
+    assertTrue(s.isPresent());
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(s.get())));
   }
 
   @Test
   public void combineOperationsTest() throws IOException{
-    TestCommonExpressionTypesCalculator calc = new TestCommonExpressionTypesCalculator();
-    MCBasicTypesTestParser parser = new MCBasicTypesTestParser();
-    TestCommonExpressionsParser p = new TestCommonExpressionsParser();
-    Optional<ASTExpression> o = p.parse_StringExpression("9*7.73-3.5/2+4.2345");
-    Optional<ASTExpression> q = p.parse_StringExpression("9*4+3-5/2");
-    Optional<ASTExpression> r = p.parse_StringExpression("3<4");
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
+    Optional<ASTExpression> o = p.parse_StringExpression("9*7.4-3/2+4");
+    Optional<ASTExpression> q = p.parse_StringExpression("9l*4+3-5/2");
+    Optional<ASTExpression> r = p.parse_StringExpression("3<4+\'a\'");
     Optional<ASTExpression> s = p.parse_StringExpression("(4<6)&&true");
     Optional<ASTExpression> t = p.parse_StringExpression("~3<4? ~3 : 4");
-    Optional<ASTExpression> u = p.parse_StringExpression("9*(7.5+8)");
+    Optional<ASTExpression> u = p.parse_StringExpression("9.2f*(7.2+8)");
     Optional<ASTExpression> v = p.parse_StringExpression("false&&true");
 
     assertTrue(o.isPresent());
-    o.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(o.get())));
 
     assertTrue(q.isPresent());
-    q.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.LONG).build().deepEquals(calc.calculateType(q.get())));
 
     assertTrue(r.isPresent());
-    r.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(r.get())));
 
     assertTrue(s.isPresent());
-    s.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(s.get())));
 
     assertTrue(t.isPresent());
-    t.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.INT).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(t.get())));
 
     assertTrue(u.isPresent());
-    u.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.DOUBLE).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.DOUBLE).build().deepEquals(calc.calculateType(u.get())));
 
     assertTrue(v.isPresent());
-    v.get().accept(calc);
-    assertTrue(new ASTMCPrimitiveType(ASTConstantsMCBasicTypes.BOOLEAN).deepEquals(calc.getResult()));
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.BOOLEAN).build().deepEquals(calc.calculateType(v.get())));
+  }
+
+  @Test
+  public void callTest() throws IOException{
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
+    Optional<ASTExpression> o = p.parse_StringExpression("call()");
+
+    assertTrue(o.isPresent());
+
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(o.get())));
+
+    Optional<ASTExpression> q = p.parse_StringExpression("A.B.C.call()");
+
+    assertTrue(q.isPresent());
+
+    assertTrue(MCBasicTypesMill.mCPrimitiveTypeBuilder().setPrimitive(ASTConstantsMCBasicTypes.INT).build().deepEquals(calc.calculateType(q.get())));
+  }
+
+  @Ignore
+  @Test
+  public void callStringTest() throws IOException{
+    CombineExpressionsWithLiteralsTypesCalculator calc = new CombineExpressionsWithLiteralsTypesCalculator(scope);
+    CombineExpressionsWithLiteralsParser p = new CombineExpressionsWithLiteralsParser();
+    Optional<ASTExpression> o = p.parse_StringExpression("(\"3\"+\"7\").toString()");
+
+    assertTrue(o.isPresent());
+    ASTExpression expr = o.get();
+
+    expr.accept(calc);
   }
 }

@@ -7,7 +7,7 @@
   <parent>
     <groupId>de.monticore</groupId>
     <artifactId>experiments</artifactId>
-    <version>5.0.5</version>
+    <version>5.0.6</version>
   </parent>
 
   <artifactId>extensionvariants</artifactId>
@@ -74,8 +74,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <excludes>
-            <exclude>**/eproblemoptinheritance/*/*.java</exclude>
-            <exclude>**/eproblemstarinheritance/*/*.java</exclude>
+            <exclude>eproblemoptinheritance/**/*.java</exclude>
+            <exclude>eproblemstarinheritance/**/*.java</exclude>
           </excludes>
         </configuration>
       </plugin>

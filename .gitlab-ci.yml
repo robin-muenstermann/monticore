@@ -1,32 +1,47 @@
 image: maven:3.5.4-jdk-8-alpine
 
+#include:
+#  - template: Code-Quality.gitlab-ci.yml
+
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2"
-  MAVEN_CLI_OPTS: "--settings settings.xml --batch-mode"
+  MC_MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2"
+  MC_MAVEN_CLI_OPTS: "--settings settings.xml --batch-mode"
+
+
+before_script:
+  - chmod +x monticore-gradle/gradlew
+  - chmod +x monticore-generator/it/experiments/gradlew
+  - chmod +x monticore-generator/it/gradlew
+  - export GRADLE_USER_HOME=`pwd`/.gradle
 
 cache:
   paths:
     - .m2/
+    - .gradle/wrapper
+    - .gradle/caches
   key: ${CI_COMMIT_REF_SLUG} # Cache per branch
-
 
 stages:
   - build
-  - trigger
   - test
 
 build_dev:
   stage: build
   script:
-    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS install -pl .,monticore-emf-runtime,monticore-runtime"
-    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS deploy -pl monticore-grammar -P emf -Dpass=$password -Duser=$username -DdeployAtEnd=true"
-    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS clean -pl monticore-grammar"
-    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS deploy -Dpass=$password -Duser=$username -DdeployAtEnd=true"
-    - curl --request POST --form "token=$Automaton" --form ref=master https://git.rwth-aachen.de/api/v4/projects/17630/trigger/pipeline
+    - "mvn $MC_MAVEN_CLI_OPTS $MC_MAVEN_OPTS deploy -Dpass=$password -Duser=$username -DdeployAtEnd=true"
+    - cd monticore-gradle
+    - "./gradlew build"
+    - "./gradlew publish -PmavenPassword=$password -PmavenUser=$username"
+    - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print covered, "/", instructions, "instructions covered"; print 100*covered/instructions, "% covered" }' ../*/target/site/jacoco/jacoco.csv
+  coverage: '/\d+.\d+ \% covered/'
   only:
     - dev
-    - ci/gitlab-runner
-
+    - cibuild
+  artifacts:
+    paths:
+      - "*/target"
+    expire_in: 1 week
+    
 build_branches:
   stage: build
   script:
@@ -34,22 +49,39 @@ build_branches:
   except:
     - dev
     - master
-    - ci/gitlab-runner
 
 integration-test:
   stage: test
+  dependencies: []
   script:
     - cd monticore-generator/it
-    - "mvn --settings ../../settings.xml $MAVEN_CLI_OPTS $MAVEN_OPTS clean verify"
-
-integration-test-emf:
+    - "mvn --settings ../../settings.xml $MC_MAVEN_CLI_OPTS $MC_MAVEN_OPTS clean verify"
+    - "mvn --settings ../../settings.xml $MC_MAVEN_CLI_OPTS $MC_MAVEN_OPTS clean verify -P emf-it-tests"
+  
+it-gradle:
   stage: test
+  dependencies: []
   script:
     - cd monticore-generator/it
-    - "mvn --settings ../../settings.xml $MAVEN_OPTS clean install -P emf-it-tests"
+    - "./gradlew build"
+    - "./gradlew build -PbuildProfile=emf"
 
-integration-test-experiments:
+it-experiments-gradle:
   stage: test
+  dependencies: []
   script:
     - cd monticore-generator/it/experiments
-    - "mvn --settings ../../../settings.xml $MAVEN_OPTS clean install"
+    - "./gradlew build --continue"
+  allow_failure: true
+
+trigger-automata:
+  stage: test
+  trigger:
+    project: monticore/languages/automaton
+    branch: master
+
+trigger-cd4a:
+  stage: test
+  trigger:
+    project: monticore/cd4analysis/cd4analysis
+    branch: newSymTab

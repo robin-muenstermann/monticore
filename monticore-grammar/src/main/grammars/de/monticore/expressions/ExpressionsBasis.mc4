@@ -5,31 +5,33 @@ package de.monticore.expressions;
  * Adaptations -- if any -- are conservative. */
 
 /**
- * This grammar defines core interfaces for expressions and the 
+ * This grammar defines core interfaces for expressions and the
  * kinds of symbols necessary.
  * A hierarchy of conservative extensions to this grammar realize
  * these interfaces in various forms.
- * 
- * The language developer may choose the subset of expressions 
+ *
+ * The language developer may choose the subset of expressions
  * of interest and combine these with the appropriate typing infrastructure
- * 
- * This modularity of expressions and associated types greatly eases 
+ *
+ * This modularity of expressions and associated types greatly eases
  * the reuse of type structures in languages similar to Java
  *
  *
- * This grammar is part of a hierarchy of types, namely 
+ * This grammar is part of a hierarchy of types, namely
  * * expressions/ExpressionsBasis.mc4
- * * --  expressions/CommonExpressions.mc4      
+ * * --  expressions/CommonExpressions.mc4
  * * --  --  expressions/JavaClassExpressions.mc4
  * * --  --  expressions/SetExpressions.mc4
- * * --  expressions/AssignmentExpressions.mc4  
- * * --  expressions/BitExpressions.mc4         
+ * * --  expressions/AssignmentExpressions.mc4
+ * * --  expressions/BitExpressions.mc4
  * * --  expressions/OCLExpressions.mc4
  *
 */
 
-component grammar ExpressionsBasis extends de.monticore.MCBasics {
-	
+component grammar ExpressionsBasis
+        extends de.monticore.MCBasics,
+	        de.monticore.MCLiteralsBasis {
+
   /*=================================================================*/
 
   /* Top level interface for all kinds of expressions
@@ -39,7 +41,7 @@ component grammar ExpressionsBasis extends de.monticore.MCBasics {
 
   /*=================================================================*/
 
-  /* Three forms of symbols that are used and applied in 
+  /* Three forms of symbols that are used and applied in
    * expressions. They are typically defined outside of expressions
    * (although there are exceptions).
   */
@@ -57,5 +59,14 @@ component grammar ExpressionsBasis extends de.monticore.MCBasics {
   /** ETypes describes types that can expressions can have.
   */
   symbol EType = Name;
-  
+
+  NameExpression implements Expression<350>
+    = Name;
+
+  LiteralExpression implements Expression<340>
+    = Literal;
+
+  QualifiedNameExpression implements Expression <290> =
+  	Expression "." Name;
+
 }

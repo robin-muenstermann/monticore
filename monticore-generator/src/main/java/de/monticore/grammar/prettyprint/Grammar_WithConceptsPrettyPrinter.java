@@ -3,29 +3,26 @@
 package de.monticore.grammar.prettyprint;
 
 
-import de.monticore.MCBasicLiteralsPrettyPrinter;
-import de.monticore.MCJavaLiteralsPrettyPrinter;
+import de.monticore.MCCommonLiteralsPrettyPrinter;
 import de.monticore.expressions.assignmentexpressions._ast.ASTAssignmentExpressionsNode;
 import de.monticore.expressions.bitexpressions._ast.ASTBitExpressionsNode;
 import de.monticore.expressions.commonexpressions._ast.ASTCommonExpressionsNode;
 import de.monticore.expressions.expressionsbasis._ast.ASTExpressionsBasisNode;
+import de.monticore.expressions.javaclassexpressions._ast.ASTExtReturnTypeExt;
 import de.monticore.expressions.javaclassexpressions._ast.ASTJavaClassExpressionsNode;
-import de.monticore.expressions.prettyprint2.AssignmentExpressionsPrettyPrinter;
-import de.monticore.expressions.prettyprint2.BitExpressionsPrettyPrinter;
-import de.monticore.expressions.prettyprint2.CommonExpressionsPrettyPrinter;
-import de.monticore.expressions.prettyprint2.JavaClassExpressionsPrettyPrinter;
+import de.monticore.expressions.prettyprint2.*;
 import de.monticore.grammar.concepts.antlr.antlr._ast.ASTAntlrNode;
 import de.monticore.grammar.grammar._ast.ASTGrammarNode;
-import de.monticore.grammar.grammar_withconcepts._ast.ASTGrammar_WithConceptsNode;
+import de.monticore.grammar.grammar_withconcepts._ast.*;
 import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsDelegatorVisitor;
 import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsVisitor;
-import de.monticore.java.javadsl._ast.ASTJavaDSLNode;
-import de.monticore.java.prettyprint.JavaDSLPrettyPrinter;
+import de.monticore.javastatements._ast.ASTJavaStatementsNode;
+import de.monticore.prettyprint.CommentPrettyPrinter;
 import de.monticore.prettyprint.IndentPrinter;
+import de.monticore.prettyprint.JavaStatementsPrettyPrinter;
 import de.monticore.prettyprint.MCBasicsPrettyPrinter;
 import de.monticore.types.prettyprint.MCBasicTypesPrettyPrinter;
 import de.monticore.types.prettyprint.MCCollectionTypesPrettyPrinter;
-import de.monticore.types.prettyprint.MCFullGenericTypesPrettyPrinter;
 import de.monticore.types.prettyprint.MCSimpleGenericTypesPrettyPrinter;
 
 
@@ -44,18 +41,18 @@ public class Grammar_WithConceptsPrettyPrinter implements Grammar_WithConceptsVi
     visitor.setGrammar_WithConceptsVisitor(this);
     visitor.setAntlrVisitor(new AntlrPrettyPrinter(out));
     visitor.setGrammarVisitor(new GrammarPrettyPrinter(out));
-    visitor.setJavaDSLVisitor(new JavaDSLPrettyPrinter(out));
+    visitor.setJavaStatementsVisitor(new JavaStatementsPrettyPrinter(out));
     visitor.setAssignmentExpressionsVisitor(new AssignmentExpressionsPrettyPrinter(out));
+    visitor.setExpressionsBasisVisitor(new ExpressionsBasisPrettyPrinter(out));
     visitor.setCommonExpressionsVisitor(new CommonExpressionsPrettyPrinter(out));
     visitor.setMCBasicsVisitor(new MCBasicsPrettyPrinter(out));
     visitor.setJavaClassExpressionsVisitor(new JavaClassExpressionsPrettyPrinter(out));
     visitor.setBitExpressionsVisitor(new BitExpressionsPrettyPrinter(out));
-    visitor.setMCBasicLiteralsVisitor(new MCBasicLiteralsPrettyPrinter(out));
+    visitor.setMCCommonLiteralsVisitor(new MCCommonLiteralsPrettyPrinter(out));
     visitor.setMCBasicTypesVisitor(new MCBasicTypesPrettyPrinter(out));
     visitor.setMCCollectionTypesVisitor(new MCCollectionTypesPrettyPrinter(out));
-    visitor.setMCFullGenericTypesVisitor(new MCFullGenericTypesPrettyPrinter(out));
-    visitor.setMCJavaLiteralsVisitor(new MCJavaLiteralsPrettyPrinter(out));
     visitor.setMCSimpleGenericTypesVisitor(new MCSimpleGenericTypesPrettyPrinter(out));
+    visitor.setMCCommonLiteralsVisitor(new MCCommonLiteralsPrettyPrinter(out));
   }
   
   @Override public void setRealThis(Grammar_WithConceptsVisitor realThis) {
@@ -87,8 +84,33 @@ public class Grammar_WithConceptsPrettyPrinter implements Grammar_WithConceptsVi
     a.accept(getRealThis());
     return printer.getContent();
   }
- 
-  public String prettyprint(ASTJavaDSLNode a) {
+
+  @Override
+  public void handle(ASTEmptyTypeParameters node) {
+    printer.print("<>");
+  }
+
+  @Override
+  public void handle(ASTExtReturnType node) {
+    CommentPrettyPrinter.printPreComments(node, printer);
+    node.getMCReturnType().accept(getRealThis());
+    CommentPrettyPrinter.printPostComments(node, printer);
+  }
+
+  @Override
+  public void handle(ASTExtType node) {
+    CommentPrettyPrinter.printPreComments(node, printer);
+    node.getMCType().accept(getRealThis());
+    CommentPrettyPrinter.printPostComments(node, printer);
+  }
+  @Override
+  public void handle(ASTExtTypeArguments node) {
+    CommentPrettyPrinter.printPreComments(node, printer);
+    node.getEmptyTypeParameters().accept(getRealThis());
+    CommentPrettyPrinter.printPostComments(node, printer);
+  }
+
+  public String prettyprint(ASTJavaStatementsNode a) {
     printer.clearBuffer();
     a.accept(getRealThis());
     return printer.getContent();

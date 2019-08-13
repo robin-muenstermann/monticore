@@ -2,8 +2,9 @@ plugins {
   id 'groovy'
   id 'java-gradle-plugin'
   id 'maven-publish'
+//  id 'cz.malohlava.visteg' version '1.0.5'  // produces a task graph visualization
 }
-version = "5.0.5"
+version = "5.0.6"
 group = "de.monticore"
 
 repositories {
@@ -18,9 +19,9 @@ repositories {
 dependencies {
   compile gradleApi()
   compile localGroovy()
-  compile group: 'de.monticore', name: 'monticore-cli', version: '5.0.5'
-  compile group: 'de.monticore', name: 'monticore-runtime', version: '5.0.5'
-  compile group: 'de.monticore', name: 'monticore-generator', version: '5.0.5'
+  compile group: 'de.monticore', name: 'monticore-cli', version: "$version"
+  compile group: 'de.monticore', name: 'monticore-runtime', version: "$version"
+  compile group: 'de.monticore', name: 'monticore-generator', version: "$version"
 }
 
 gradlePlugin.plugins {
@@ -31,7 +32,7 @@ gradlePlugin.plugins {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-  classifier = 'sources'
+  archiveClassifier = 'sources'
   from sourceSets.main.allSource
 }
 
@@ -40,9 +41,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 publishing {
   // configure what artifacts to publish
   publications {
-    mavenJava(MavenPublication) {
-      artifactId = "$project.name"
-      from components.java
+    pluginMaven(MavenPublication){
       artifact sourcesJar
     }
   }

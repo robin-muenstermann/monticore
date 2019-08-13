@@ -3,7 +3,7 @@ package de.monticore.grammar;
 
 /** The grammar describes the MontiCore grammar in its own format
 */
-component grammar Grammar extends de.monticore.MCBasicLiterals, de.monticore.types.MCSimpleGenericTypes {
+component grammar Grammar extends de.monticore.MCCommonLiterals, de.monticore.types.MCSimpleGenericTypes {
 
   /** Used for embedding actions */
   external Action;
@@ -259,7 +259,7 @@ component grammar Grammar extends de.monticore.MCBasicLiterals, de.monticore.typ
   */
   Card =
    (
-     Unbounded:["*"]
+     iteration:["?"|"*"|"+"]
    |
      "min" "=" min:Digits
      ("max" "=" ( max:Digits | max:"*"))?

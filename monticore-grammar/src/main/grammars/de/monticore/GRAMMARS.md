@@ -150,22 +150,63 @@ UML's OCL.
 
 
 
+## Further grammars (status: to be handled):
 
-## Further grammars (status: unclarified):
+### Beta: to become stable in the next iteration
+
+* MCLiteralsBasis.mc4
+* MCCommonLiterals.mc4
+* MCJavaLiterals.mc4
+
+TODO Defizite:
+* interface Literal und interface SignedLiteral in verschiedenen
+  Grammatiken.
+* Die Trennung Literals und SignedLiterals ist aus Nutzersicht immer 
+  noch unschön
+* Alle Expression-Grammatiken sind jetzt abhängig von 
+   MCLiteralsBasis.mc4, und während die Expressions als Stable 
+   deklariert sind, ist es MCLiteralsBasis.mc4 nicht
+* Literals sind auch Expressions, warum also nicht im Directory
+  expressions ansiedeln (oder eigenes Subdirectory)
+* Literals haben einen Typ --> aber in der MCLiteralsBasis.mc4
+  grammatik werden die Grundlagen dafür (zB symbol EType)
+  nicht gelegt. Wie wollen wir das handhaben?
+* Man könnte auch das Interface "Literals" direkt in ExpressionsBasis
+  einbauen (was wiederum die Literals-Grammatiken leider von 
+  ExpressionsBasis abhängig macht)
+* Wieso halten wir es für gerechtfertigt / notwendig diese Grammatiken
+nochmal extra in die Kern-Library zu legen:
+ expressions/AssignmentExpressionsWithLiterals.mc4
+ expressions/CombineExpressionsWithLiterals.mc4
+ expressions/CommonExpressionsWithLiterals.mc4.
+ Ausserdem scheinen die veraltet zu sein (da taucht ExtLiteral auf).
+ Überdies scheinen die maximal tests zu sein (da taucht Foo="bar" auf).
+ Wir tun uns nicht weh die zu entfernen oder in eine Test-Sammlung zu verschieben?
+* Ergänzend: eine Grammatik, die nur das Interface "Literal" 
+beinhaltet könnte auch so heissen: "LiteralInterface"
+(ohne "MC"). Dito für Expressions.
+
+* Meta: Anscheinend müssen wir den Prozess zur Anpassung bereits
+stabiler und anderer Grammatiken sowie deren Dokumentation
+im MC-Kern nochmal klären.
+
+
+
+### Alpha: also to become stable (one phase later)
 
 * Cardinality.mc4
 * Completeness.mc4
-* lexicals/Lexicals.mc4
-* literals/Literals.mc4
-* MCBasicLiterals.mc4
 * MCCommon.mc4
-* MCHexNumbers.mc4
-* MCJavaLiterals.mc4
-* MCNumbers.mc4
-* StringLiterals.mc4
 * UMLModifier.mc4
 * UMLStereotype.mc4
 
+### Examples for Grammars 
+
+These can also be used if someone is interested:
+
+* StringLiterals.mc4
+* MCHexNumbers.mc4
+* MCNumbers.mc4
 
 
 

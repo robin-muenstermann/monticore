@@ -5,10 +5,10 @@ package de.monticore;
  * Adaptations -- if any -- are conservative. */
 
 /**
- * This grammar defines absolute basics, such as spaces, 
- * Java-like comments and Names. 
+ * This grammar defines absolute basics, such as spaces,
+ * Java-like comments and Names.
  * It should be useful in many languages.
- * 
+ *
 */
 
 component grammar MCBasics {
@@ -30,7 +30,7 @@ component grammar MCBasics {
 
   /** White Spaces.
       They are not added to the parsing token list, but omitted right away.
-  */  
+  */
   token WS =
     (' ' | 
     '\t' |
@@ -41,7 +41,7 @@ component grammar MCBasics {
 
   /** A single line comment in Java style: //
       Comments are ignored by the parser.
-  */  
+  */
   token SL_COMMENT =
     "//" (~('\n' |
       '\r' )
@@ -60,7 +60,7 @@ component grammar MCBasics {
   /** A multi line comment in Java style.
       The comments are not nested.
       Comments are ignored by the parser.
-  */  
+  */
   token ML_COMMENT =
     "/*" ({_input.LA(2) != '/'}?'*' |
      NEWLINE |
