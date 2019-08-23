@@ -1,3 +1,4 @@
+<#-- (c) https://github.com/MontiCore/monticore -->
 // One might think that we could call traverse(subelement) immediately,
 // but this is not true for interface-types where we do not know the
 // concrete type of the element.
@@ -8,7 +9,7 @@ ${tc.signature("cdClass")}
 <#list cdClass.getCDAttributeList() as attr>
   <#if genHelper.isAstNode(attr) || genHelper.isOptionalAstNode(attr) >
     <#assign attrGetter = "get"+ attr.getName()?cap_first>
-    <#if genHelper.isOptional(attr.getType())>
+    <#if genHelper.isOptional(attr.getMCType())>
       if (node.${attrGetter}().isPresent()) {
         node.${attrGetter}().get().accept(getRealThis());
       }

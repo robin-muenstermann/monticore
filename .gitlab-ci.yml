@@ -12,6 +12,7 @@ before_script:
   - chmod +x monticore-gradle/gradlew
   - chmod +x monticore-generator/it/experiments/gradlew
   - chmod +x monticore-generator/it/gradlew
+  - chmod +x monticore-templateclassgenerator/it/monticore-templateclassgenerator-it/gradlew
   - export GRADLE_USER_HOME=`pwd`/.gradle
 
 cache:
@@ -45,7 +46,7 @@ build_dev:
 build_branches:
   stage: build
   script:
-    - "mvn $MAVEN_CLI_OPTS $MAVEN_OPTS install"
+    - "mvn $MC_MAVEN_CLI_OPTS $MC_MAVEN_OPTS install"
   except:
     - dev
     - master
@@ -57,7 +58,7 @@ integration-test:
     - cd monticore-generator/it
     - "mvn --settings ../../settings.xml $MC_MAVEN_CLI_OPTS $MC_MAVEN_OPTS clean verify"
     - "mvn --settings ../../settings.xml $MC_MAVEN_CLI_OPTS $MC_MAVEN_OPTS clean verify -P emf-it-tests"
-  
+
 it-gradle:
   stage: test
   dependencies: []
@@ -65,23 +66,33 @@ it-gradle:
     - cd monticore-generator/it
     - "./gradlew build"
     - "./gradlew build -PbuildProfile=emf"
+    - "cd ../../monticore-templateclassgenerator/it/monticore-templateclassgenerator-it"
+    - "./gradlew build"
+  only:
+    - dev
 
 it-experiments-gradle:
   stage: test
   dependencies: []
   script:
     - cd monticore-generator/it/experiments
-    - "./gradlew build --continue"
+    - "./gradlew build"
   allow_failure: true
+  only:
+    - dev
 
 trigger-automata:
   stage: test
   trigger:
     project: monticore/languages/automaton
     branch: master
+  only:
+    - dev
 
 trigger-cd4a:
   stage: test
   trigger:
     project: monticore/cd4analysis/cd4analysis
-    branch: newSymTab
+    branch: develop
+  only:
+    - dev

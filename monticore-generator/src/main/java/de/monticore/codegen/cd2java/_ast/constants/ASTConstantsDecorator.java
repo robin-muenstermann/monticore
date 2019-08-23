@@ -1,12 +1,15 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java._ast.constants;
 
-import de.monticore.codegen.cd2java.AbstractDecorator;
+import de.monticore.cd.cd4analysis._ast.*;
+import de.monticore.cd.cd4analysis._symboltable.CDDefinitionSymbol;
+import de.monticore.codegen.cd2java.AbstractCreator;
 import de.monticore.codegen.cd2java.AbstractService;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.StringHookPoint;
 import de.monticore.generating.templateengine.TemplateHookPoint;
-import de.monticore.umlcd4a.cd4analysis._ast.*;
-import de.monticore.umlcd4a.symboltable.CDSymbol;
+import de.monticore.types.mcbasictypes._ast.ASTMCReturnType;
+import de.monticore.types.mcbasictypes._ast.MCBasicTypesMill;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +21,7 @@ import static de.monticore.codegen.cd2java.CoreTemplates.EMPTY_BODY;
 import static de.monticore.codegen.cd2java.CoreTemplates.VALUE;
 import static de.monticore.codegen.cd2java.factories.CDModifier.*;
 
-public class ASTConstantsDecorator extends AbstractDecorator<ASTCDCompilationUnit, ASTCDClass> {
+public class ASTConstantsDecorator extends AbstractCreator<ASTCDCompilationUnit, ASTCDClass> {
 
   public static final String LITERALS_SUFFIX = "Literals";
 
@@ -34,7 +37,8 @@ public class ASTConstantsDecorator extends AbstractDecorator<ASTCDCompilationUni
 
   protected final AbstractService<?> service;
 
-  public ASTConstantsDecorator(GlobalExtensionManagement glex, AbstractService abstractService) {
+  public ASTConstantsDecorator(final GlobalExtensionManagement glex,
+                               final AbstractService abstractService) {
     super(glex);
     this.service = abstractService;
   }
@@ -58,7 +62,7 @@ public class ASTConstantsDecorator extends AbstractDecorator<ASTCDCompilationUni
             .collect(Collectors.toList()));
       }
     }
-    Collection<CDSymbol> superSymbolList = service.getSuperCDs();
+    Collection<CDDefinitionSymbol> superSymbolList = service.getSuperCDs();
     return CD4AnalysisMill.cDClassBuilder()
         .setModifier(PUBLIC.build())
         .setName(className)
@@ -87,14 +91,8 @@ public class ASTConstantsDecorator extends AbstractDecorator<ASTCDCompilationUni
     return attributeList;
   }
 
-  protected ASTCDAttribute getDefaultAttribute() {
-    ASTCDAttribute attribute = getCDAttributeFacade().createAttribute(PUBLIC_STATIC_FINAL, getCDTypeFacade().createIntType(), DEFAULT);
-    this.replaceTemplate(VALUE, attribute, new StringHookPoint("= 0"));
-    return attribute;
-  }
-
-  protected ASTCDAttribute getSuperGrammarsAttribute(Collection<CDSymbol> superSymbolList) {
-    List<String> superGrammarNames = superSymbolList.stream().map(CDSymbol::getFullName).map(x -> "\"" + x + "\"").collect(Collectors.toList());
+  protected ASTCDAttribute getSuperGrammarsAttribute(Collection<CDDefinitionSymbol> superSymbolList) {
+    List<String> superGrammarNames = superSymbolList.stream().map(CDDefinitionSymbol::getFullName).map(x -> "\"" + x + "\"").collect(Collectors.toList());
     ASTCDAttribute attribute = getCDAttributeFacade().createAttribute(PUBLIC_STATIC, getCDTypeFacade().createArrayType(String.class, 1), SUPER_GRAMMARS);
     if (!superSymbolList.isEmpty()) {
       String s = superGrammarNames.stream().reduce((a, b) -> a + ", " + b).get();
@@ -105,12 +103,34 @@ public class ASTConstantsDecorator extends AbstractDecorator<ASTCDCompilationUni
     return attribute;
   }
 
+  protected ASTCDAttribute getDefaultAttribute() {
+    ASTCDAttribute attribute = getCDAttributeFacade().createAttribute(PUBLIC_STATIC_FINAL, getCDTypeFacade().createIntType(), DEFAULT);
+    this.replaceTemplate(VALUE, attribute, new StringHookPoint("= 0"));
+    return attribute;
+  }
+
+ /*
+   TODO Braucht man das?
+ protected ASTCDAttribute getSuperGrammarsAttribute(Collection<CDDefinitionSymbol> superSymbolList) {
+    List<String> superGrammarNames = superSymbolList.stream().map(CDDefinitionSymbol::getFullName).map(x -> "\"" + x + "\"").collect(Collectors.toList());
+    ASTCDAttribute attribute = getCDAttributeFacade().createAttribute(PUBLIC_STATIC, getCDTypeFacade().createArrayType(String.class, 1), SUPER_GRAMMARS);
+    if (!superSymbolList.isEmpty()) {
+      String s = superGrammarNames.stream().reduce((a, b) -> a + ", " + b).get();
+      this.replaceTemplate(VALUE, attribute, new StringHookPoint("= {" + s + "}"));
+    } else {
+      this.replaceTemplate(VALUE, attribute, new StringHookPoint("= {}"));
+    }
+    return attribute;
+  }
+*/
   protected ASTCDConstructor getDefaultConstructor(String className) {
     return getCDConstructorFacade().createConstructor(PUBLIC, className);
   }
 
-  protected ASTCDMethod getGetAllLanguagesMethod(Collection<CDSymbol> superCDs) {
-    ASTCDMethod method = getCDMethodFacade().createMethod(PUBLIC_STATIC, getCDTypeFacade().createTypeByDefinition("Collection<String>"), GET_ALL_LANGUAGES);
+  protected ASTCDMethod getGetAllLanguagesMethod(Collection<CDDefinitionSymbol> superCDs) {
+    ASTMCReturnType returnType = MCBasicTypesMill.mCReturnTypeBuilder().setMCType(getCDTypeFacade().createTypeByDefinition("Collection<String>")).build();
+
+    ASTCDMethod method = getCDMethodFacade().createMethod(PUBLIC_STATIC, returnType, GET_ALL_LANGUAGES);
     this.replaceTemplate(EMPTY_BODY, method, new TemplateHookPoint("_ast.ast_constants.GetAllLanguages",
        superCDs));
     return method;

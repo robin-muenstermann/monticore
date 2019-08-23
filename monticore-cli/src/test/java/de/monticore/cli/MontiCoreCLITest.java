@@ -2,14 +2,13 @@
 
 package de.monticore.cli;
 
-import static org.junit.Assert.assertTrue;
-
+import de.monticore.MontiCoreConfiguration;
+import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.monticore.MontiCoreConfiguration;
-import de.se_rwth.commons.logging.Log;
+import static org.junit.Assert.assertTrue;
 
 /**
  * A collection of exemplary use cases for the CLI arguments. These unit tests
@@ -118,14 +117,14 @@ public class MontiCoreCLITest {
     
     assertTrue(!false);
   }
-  
+
   @Test
   public void testMontiCoreCustomScriptCLI() {
     MontiCoreCLI.main(customScriptArgs);
     
     assertTrue(!false);
   }
-  
+
   @Test
   public void testMontiCoreCustomEmfScriptCLI() {
     MontiCoreCLI.main(customEmfScriptArgs);
@@ -139,8 +138,7 @@ public class MontiCoreCLITest {
 
     assertTrue(!false);
 }
-  
-  @Ignore
+  @Ignore // It's not possible to switch off fail quick (Logger in CLI)
   @Test
   public void testArgsWithNoGrammars() {
     MontiCoreCLI.main(argsWithNoGrammars);

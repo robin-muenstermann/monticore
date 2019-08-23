@@ -1,10 +1,13 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.types.mccollectiontypes._ast;
 
 
 
 import com.google.common.collect.Lists;
+import de.monticore.types.mcbasictypes._symboltable.MCTypeSymbol;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ASTMCMapType extends ASTMCMapTypeTOP {
 
@@ -42,4 +45,5 @@ public class ASTMCMapType extends ASTMCMapTypeTOP {
         setKey(arguments.get(0));
         setValue(arguments.get(1));
     }
+
 }

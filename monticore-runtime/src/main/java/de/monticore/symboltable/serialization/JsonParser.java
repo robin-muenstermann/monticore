@@ -1,58 +1,59 @@
-/*
- * Copyright (c) 2019 RWTH Aachen. All rights reserved.
- *
- * http://www.se-rwth.de/
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.symboltable.serialization;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import de.monticore.symboltable.serialization.json.*;
+import de.se_rwth.commons.logging.Log;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-
-import de.monticore.symboltable.serialization.json.JsonArray;
-import de.monticore.symboltable.serialization.json.JsonBoolean;
-import de.monticore.symboltable.serialization.json.JsonElement;
-import de.monticore.symboltable.serialization.json.JsonNull;
-import de.monticore.symboltable.serialization.json.JsonNumber;
-import de.monticore.symboltable.serialization.json.JsonObject;
-import de.monticore.symboltable.serialization.json.JsonString;
-import de.se_rwth.commons.logging.Log;
-
 /**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since TODO: add version number
+ * Parses serialized JSON Strings into an intermediate JSON data structure. This data structure can
+ * then be used, e.g., to build Java objects with their builders.
  */
 public class JsonParser {
   
+  public static JsonElement parseJson(String s) {
+    JsonReader reader = new JsonReader(new StringReader(s));
+    return parseJson(reader);
+  }
+  
+  public static JsonObject parseJsonObject(String s) {
+    JsonReader reader = new JsonReader(new StringReader(s));
+    return parseJsonObject(reader);
+  }
+  
+  public static JsonArray parseJsonArray(String s) {
+    JsonReader reader = new JsonReader(new StringReader(s));
+    return parseJsonArray(reader);
+  }
+  
+  @Deprecated
   public static JsonElement deserializeJson(String s) {
-    JsonReader reader = new JsonReader(new StringReader(s));
-    return deserializeJson(reader);
+    return parseJson(s);
   }
   
+  @Deprecated
   public static JsonObject deserializeJsonObject(String s) {
-    JsonReader reader = new JsonReader(new StringReader(s));
-    return deserializeJsonObject(reader);
+    return parseJsonObject(s);
   }
   
+  @Deprecated
   public static JsonArray deserializeJsonArray(String s) {
-    JsonReader reader = new JsonReader(new StringReader(s));
-    return deserializeJsonArray(reader);
+    return parseJsonArray(s);
   }
   
-  protected static JsonElement deserializeJson(JsonReader reader) {
+  protected static JsonElement parseJson(JsonReader reader) {
     try {
       while (reader.hasNext()) {
         JsonToken token = reader.peek();
         switch (token) {
           case BEGIN_ARRAY:
-            return deserializeJsonArray(reader);
+            return parseJsonArray(reader);
           case BEGIN_OBJECT:
-            return deserializeJsonObject(reader);
+            return parseJsonObject(reader);
           case BOOLEAN:
             return new JsonBoolean(reader.nextBoolean());
           case END_DOCUMENT:
@@ -79,7 +80,7 @@ public class JsonParser {
     return null;
   }
   
-  protected static JsonObject deserializeJsonObject(JsonReader reader) {
+  protected static JsonObject parseJsonObject(JsonReader reader) {
     JsonObject result = new JsonObject();
     try {
       reader.beginObject();
@@ -88,7 +89,7 @@ public class JsonParser {
         switch (token) {
           case NAME:
             String name = reader.nextName();
-            JsonElement value = deserializeJson(reader);
+            JsonElement value = parseJson(reader);
             result.put(name, value);
             break;
           default:
@@ -105,7 +106,7 @@ public class JsonParser {
     return result;
   }
   
-  protected static JsonArray deserializeJsonArray(JsonReader reader) {
+  protected static JsonArray parseJsonArray(JsonReader reader) {
     JsonArray result = new JsonArray();
     try {
       reader.beginArray();
@@ -113,11 +114,11 @@ public class JsonParser {
         JsonToken token = reader.peek();
         switch (token) {
           case BEGIN_ARRAY:
-            JsonArray array = deserializeJsonArray(reader);
+            JsonArray array = parseJsonArray(reader);
             result.add(array);
             break;
           case BEGIN_OBJECT:
-            JsonObject object = deserializeJsonObject(reader);
+            JsonObject object = parseJsonObject(reader);
             result.add(object);
             break;
           case BOOLEAN:
@@ -125,7 +126,7 @@ public class JsonParser {
             result.add(bool);
             break;
           case NUMBER:
-            JsonNumber number = new JsonNumber(reader.nextDouble() + "");
+            JsonNumber number = new JsonNumber(reader.nextString());
             result.add(number);
             break;
           case STRING:

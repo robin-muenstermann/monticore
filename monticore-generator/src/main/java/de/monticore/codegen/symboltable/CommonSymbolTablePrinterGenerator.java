@@ -1,15 +1,5 @@
-/*
- * Copyright (c) 2017 RWTH Aachen. All rights reserved.
- *
- * http://www.se-rwth.de/
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.symboltable;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 import de.monticore.codegen.GeneratorHelper;
 import de.monticore.generating.GeneratorEngine;
@@ -18,6 +8,12 @@ import de.monticore.grammar.grammar._ast.ASTScopeRule;
 import de.monticore.grammar.grammar._ast.ASTSymbolRule;
 import de.monticore.io.paths.IterablePath;
 import de.se_rwth.commons.Names;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class CommonSymbolTablePrinterGenerator implements SymbolTablePrinterGenerator {
   

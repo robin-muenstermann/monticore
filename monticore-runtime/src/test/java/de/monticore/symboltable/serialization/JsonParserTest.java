@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2019 RWTH Aachen. All rights reserved.
- *
- * http://www.se-rwth.de/
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.symboltable.serialization;
 
 import static org.junit.Assert.assertEquals;
@@ -23,7 +19,7 @@ public class JsonParserTest {
   
   @Test
   public void testSimpleObject() {
-    JsonObject result = JsonParser.deserializeJsonObject("{\"foo\":false,\"bar\":3,\"bla\":\"yes\",\"blub\":3.4}");
+    JsonObject result = JsonParser.parseJsonObject("{\"foo\":false,\"bar\":3,\"bla\":\"yes\",\"blub\":3.4}");
     assertTrue(result.get("foo").isJsonBoolean());
     assertEquals(false, result.get("foo").getAsJsonBoolean().getValue());
     

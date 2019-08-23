@@ -1,7 +1,8 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.typescalculator;
 
-import de.monticore.mcliteralsbasis._ast.ASTLiteral;
-import de.monticore.mcliteralsbasis._visitor.MCLiteralsBasisVisitor;
+import de.monticore.literals.mcliteralsbasis._ast.ASTLiteral;
+import de.monticore.literals.mcliteralsbasis._visitor.MCLiteralsBasisVisitor;
 import de.monticore.types.mcbasictypes._ast.ASTMCType;
 
 public class LiteralsBasisTypesCalculator implements LiteralTypeCalculator {

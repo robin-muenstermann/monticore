@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2019 RWTH Aachen. All rights reserved.
- *
- * http://www.se-rwth.de/
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.symboltable.serialization.json;
 
 import de.monticore.symboltable.serialization.JsonPrinter;
@@ -16,12 +12,13 @@ public class JsonBoolean implements JsonElement {
   
   /**
    * Constructor for automata._symboltable.serialization.json.JsonBoolean
+   * 
    * @param value
    */
   public JsonBoolean(boolean value) {
     this.value = value;
   }
-
+  
   /**
    * @see automata._symboltable.serialization.json.JsonElement#isJsonBoolean()
    */
@@ -58,7 +55,7 @@ public class JsonBoolean implements JsonElement {
   @Override
   public String toString() {
     JsonPrinter p = new JsonPrinter();
-    p.attribute(value);
+    p.value(value);
     return p.getContent();
   }
   

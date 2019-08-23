@@ -1,19 +1,20 @@
+/* (c) https://github.com/MontiCore/monticore */
 plugins {
   id 'groovy'
   id 'java-gradle-plugin'
   id 'maven-publish'
 //  id 'cz.malohlava.visteg' version '1.0.5'  // produces a task graph visualization
 }
-version = "5.0.6"
+version = "5.2.0"
 group = "de.monticore"
 
 repositories {
-  mavenLocal()
   maven {
     credentials.username mavenUser
     credentials.password mavenPassword
     url repo
   }
+  mavenLocal()
 }
 
 dependencies {

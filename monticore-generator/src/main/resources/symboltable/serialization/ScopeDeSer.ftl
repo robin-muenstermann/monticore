@@ -75,7 +75,7 @@ ${symbol}SymbolDeSer ${symbol?lower_case}SymbolDeSer = new ${symbol}SymbolDeSer(
    */
   @Override
   public Optional<I${languageName}Scope> deserialize(String serialized) {
-    JsonObject scope = JsonParser.deserializeJsonObject(serialized);
+    JsonObject scope = JsonParser.parseJsonObject(serialized);
     return deserialize(scope);
   }
   
@@ -137,7 +137,7 @@ ${symbol}SymbolDeSer ${symbol?lower_case}SymbolDeSer = new ${symbol}SymbolDeSer(
   protected void addSymbols(JsonObject scopeJson, ${languageName}Scope scope) {
 <#list symbolNames?keys as symbol>  
     if (scopeJson.containsKey("${symbol?lower_case}Symbols")) {
-      List<JsonElement> ${symbol?lower_case}Symbols = scopeJson.get("${symbol?lower_case}Symbols").getAsJsonArray().getElements();
+      List<JsonElement> ${symbol?lower_case}Symbols = scopeJson.get("${symbol?lower_case}Symbols").getAsJsonArray().getValues();
       for (JsonElement ${symbol?lower_case}Symbol : ${symbol?lower_case}Symbols) {
         deserialize${symbol}Symbol(${symbol?lower_case}Symbol.getAsJsonObject(), scope);
       }
@@ -148,7 +148,7 @@ ${symbol}SymbolDeSer ${symbol?lower_case}SymbolDeSer = new ${symbol}SymbolDeSer(
   protected void addAndLinkSubScopes(JsonObject scopeJson, ${languageName}Scope scope) {
     if (scopeJson.containsKey(JsonConstants.SUBSCOPES)) {
       List<JsonElement> elements = scopeJson.get(JsonConstants.SUBSCOPES).getAsJsonArray()
-          .getElements();
+          .getValues();
       for (JsonElement subScopeJson : elements) {
         JsonObject s = subScopeJson.getAsJsonObject();
         Optional<I${languageName}Scope> subScope = deserialize(s);
@@ -207,8 +207,8 @@ ${symbol}SymbolDeSer ${symbol?lower_case}SymbolDeSer = new ${symbol}SymbolDeSer(
 
 <#if scopeRule.isPresent()>
 <#list scopeRule.get().getAdditionalAttributeList() as attr>
-<#assign attrType=attr.getMCType().getBaseName()>
-  protected ${genHelper.getQualifiedASTName(attrType)} deserialize${attr.getName()?cap_first}(JsonObject scopeJson){
+  <#assign attrType=stHelper.deriveAdditionalAttributeTypeWithMult(attr)>
+  protected ${attrType} deserialize${attr.getName()?cap_first}(JsonObject scopeJson){
 <#switch attrType>
 <#case "String">
     return scopeJson.get("${attr.getName()}").getAsJsonString().getValue();
@@ -229,7 +229,7 @@ ${symbol}SymbolDeSer ${symbol?lower_case}SymbolDeSer = new ${symbol}SymbolDeSer(
     return scopeJson.get("${attr.getName()}").getAsJsonNumber().getNumberAsLong();
 <#break>
 <#default>
-    Log.error("Unable to deserialize scope attribute ${attr.getName()} of type ${attrType}. Please override the method ${className}#deserialize${attr.getName()?cap_first}(JsonObject) using the TOP mechanism!);
+    Log.error("Unable to deserialize scope attribute ${attr.getName()} of type ${attrType}. Please override the method ${className}#deserialize${attr.getName()?cap_first}(JsonObject) using the TOP mechanism!");
     return null;
 </#switch>
   }

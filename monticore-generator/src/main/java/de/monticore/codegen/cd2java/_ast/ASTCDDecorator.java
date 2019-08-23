@@ -1,6 +1,8 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java._ast;
 
-import de.monticore.codegen.cd2java.AbstractDecorator;
+import de.monticore.cd.cd4analysis._ast.*;
+import de.monticore.codegen.cd2java.AbstractCreator;
 import de.monticore.codegen.cd2java.CoreTemplates;
 import de.monticore.codegen.cd2java._ast.ast_class.ASTConstants;
 import de.monticore.codegen.cd2java._ast.ast_class.ASTFullDecorator;
@@ -11,9 +13,8 @@ import de.monticore.codegen.cd2java._ast.constants.ASTConstantsDecorator;
 import de.monticore.codegen.cd2java._ast.enums.EnumDecorator;
 import de.monticore.codegen.cd2java._ast.factory.NodeFactoryDecorator;
 import de.monticore.codegen.cd2java._ast.mill.MillDecorator;
+import de.monticore.codegen.cd2java._ast.mill.MillForSuperDecorator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.monticore.umlcd4a.cd4analysis._ast.*;
-import de.monticore.umlcd4a.symboltable.CD4AnalysisSymbolTableCreator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 import static de.monticore.codegen.cd2java.CoreTemplates.PACKAGE;
 import static de.monticore.codegen.cd2java.CoreTemplates.createPackageHookPoint;
 
-public class ASTCDDecorator extends AbstractDecorator<ASTCDCompilationUnit, ASTCDCompilationUnit> {
+public class ASTCDDecorator extends AbstractCreator<ASTCDCompilationUnit, ASTCDCompilationUnit> {
 
   protected final ASTFullDecorator astFullDecorator;
 
@@ -35,21 +36,21 @@ public class ASTCDDecorator extends AbstractDecorator<ASTCDCompilationUnit, ASTC
 
   protected final MillDecorator millDecorator;
 
+  protected final MillForSuperDecorator millForSuperDecorator;
+
   protected final ASTConstantsDecorator astConstantsDecorator;
 
   protected final EnumDecorator enumDecorator;
 
   protected final FullASTInterfaceDecorator astInterfaceDecorator;
 
-  protected final CD4AnalysisSymbolTableCreator symbolTableCreator;
-
   public ASTCDDecorator(final GlobalExtensionManagement glex,
-                        final CD4AnalysisSymbolTableCreator symbolTableCreator,
                         final ASTFullDecorator astFullDecorator,
                         final ASTLanguageInterfaceDecorator astLanguageInterfaceDecorator,
                         final ASTBuilderDecorator astBuilderDecorator,
                         final NodeFactoryDecorator nodeFactoryDecorator,
                         final MillDecorator millDecorator,
+                        final MillForSuperDecorator millForSuperDecorator,
                         final ASTConstantsDecorator astConstantsDecorator,
                         final EnumDecorator enumDecorator,
                         final FullASTInterfaceDecorator astInterfaceDecorator) {
@@ -59,10 +60,10 @@ public class ASTCDDecorator extends AbstractDecorator<ASTCDCompilationUnit, ASTC
     this.astBuilderDecorator = astBuilderDecorator;
     this.nodeFactoryDecorator = nodeFactoryDecorator;
     this.millDecorator = millDecorator;
+    this.millForSuperDecorator = millForSuperDecorator;
     this.astConstantsDecorator = astConstantsDecorator;
     this.enumDecorator = enumDecorator;
     this.astInterfaceDecorator = astInterfaceDecorator;
-    this.symbolTableCreator = symbolTableCreator;
   }
 
   @Override
@@ -76,6 +77,7 @@ public class ASTCDDecorator extends AbstractDecorator<ASTCDCompilationUnit, ASTC
         .addAllCDClasss(createASTBuilderClasses(ast))
         .addCDClass(createNodeFactoryClass(ast))
         .addCDClass(createMillClass(ast))
+        .addAllCDClasss(createMillForSuperClasses(ast))
         .addCDClass(createASTConstantsClass(ast))
         .addAllCDInterfaces(createASTInterfaces(ast))
         .addCDInterface(createLanguageInterface(ast))
@@ -101,12 +103,17 @@ public class ASTCDDecorator extends AbstractDecorator<ASTCDCompilationUnit, ASTC
   }
 
   protected List<ASTCDClass> createASTClasses(final ASTCDCompilationUnit ast) {
-    ASTCDCompilationUnit copyedCD = ast.deepClone();
-    symbolTableCreator.createFromAST(copyedCD);
-    return copyedCD.getCDDefinition().getCDClassList().stream()
-        .map(astFullDecorator::decorate)
-        .collect(Collectors.toList());
+    List<ASTCDClass> astcdClassList = new ArrayList<>();
+    for (ASTCDClass astcdClass : ast.getCDDefinition().getCDClassList()) {
+      ASTCDClass changedClass = CD4AnalysisMill.cDClassBuilder().setName(astcdClass.getName())
+          .setModifier(astcdClass.getModifier())
+          .build();
+      astFullDecorator.decorate(astcdClass, changedClass);
+      astcdClassList.add(changedClass);
+    }
+    return astcdClassList;
   }
+
 
   protected ASTCDInterface createLanguageInterface(final ASTCDCompilationUnit ast) {
     return astLanguageInterfaceDecorator.decorate(ast);
@@ -126,14 +133,25 @@ public class ASTCDDecorator extends AbstractDecorator<ASTCDCompilationUnit, ASTC
     return millDecorator.decorate(ast);
   }
 
+  protected List<ASTCDClass> createMillForSuperClasses(final ASTCDCompilationUnit ast) {
+    return millForSuperDecorator.decorate(ast);
+  }
+
   protected ASTCDClass createASTConstantsClass(final ASTCDCompilationUnit ast) {
     return astConstantsDecorator.decorate(ast);
   }
 
   protected List<ASTCDInterface> createASTInterfaces(final ASTCDCompilationUnit ast) {
-    return ast.getCDDefinition().getCDInterfaceList().stream()
-        .map(astInterfaceDecorator::decorate)
-        .collect(Collectors.toList());
+
+    List<ASTCDInterface> astcdInterfaceList = new ArrayList<>();
+    for (ASTCDInterface astcdInterface : ast.getCDDefinition().getCDInterfaceList()) {
+      ASTCDInterface changedInterface = CD4AnalysisMill.cDInterfaceBuilder().setName(astcdInterface.getName())
+          .setModifier(astcdInterface.getModifier())
+          .build();
+      ASTCDInterface decoratedASTClass = astInterfaceDecorator.decorate(astcdInterface, changedInterface);
+      astcdInterfaceList.add(decoratedASTClass);
+    }
+    return astcdInterfaceList;
   }
 
   protected List<ASTCDEnum> createEnums(final ASTCDCompilationUnit ast) {

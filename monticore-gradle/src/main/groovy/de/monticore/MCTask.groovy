@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore
 
 import de.monticore.cli.MontiCoreCLI
@@ -79,7 +80,7 @@ public class MCTask extends DefaultTask {
     logger.info(inputs.isIncremental() ? "CHANGED inputs considered out of date"
             : "ALL inputs considered out of date");
     inputs.outOfDate({ InputFileDetails change ->
-      System.out.println("out of date: "+change.file.name)
+      logger.info("out of date: "+change.file.name)
       List<String> params = [grammar.toString(), "-o", outputDir.toString(), "-f", "-mp"]
       params.addAll(mp)
       params.add("-hcp")

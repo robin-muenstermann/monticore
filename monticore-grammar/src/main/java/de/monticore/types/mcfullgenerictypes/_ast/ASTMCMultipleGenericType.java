@@ -1,10 +1,12 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.types.mcfullgenerictypes._ast;
 
 import com.google.common.collect.ImmutableList;
+import de.monticore.types.mcbasictypes._symboltable.MCTypeSymbol;
 import de.monticore.types.mccollectiontypes._ast.ASTMCTypeArgument;
-import de.monticore.types.mcsimplegenerictypes._ast.ASTMCBasicGenericType;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ASTMCMultipleGenericType extends ASTMCMultipleGenericTypeTOP {
   public ASTMCMultipleGenericType() {
@@ -52,6 +54,5 @@ public class ASTMCMultipleGenericType extends ASTMCMultipleGenericTypeTOP {
   public void setMCTypeArgumentList(List<ASTMCTypeArgument> arguments) {
 
   }
-
 
 }

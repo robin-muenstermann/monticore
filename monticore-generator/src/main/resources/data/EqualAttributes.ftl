@@ -10,16 +10,15 @@ ${tc.signature("astcdClass", "simpleClassName")}
     } else {
       return false;
     }
-      <#-- TODO: attributes of super class - use symbol table -->
        <#list astcdClass.getCDAttributeList()  as attribute>
          <#assign attributeName = attribute.getName()>
          <#if !genHelper.isSimpleAstNode(attribute) && !genHelper.isOptionalAstNode(attribute) && !genHelper.isListAstNode(attribute)>
 	// comparing ${attributeName} 
-	      <#if genHelper.isPrimitive(attribute.getType())>
+	      <#if genHelper.isPrimitive(attribute.getMCType())>
     if (!(this.${attributeName} == comp.${attributeName})) {
       return false;
     }
-         <#elseif genHelper.isOptional(attribute.getType())>
+         <#elseif genHelper.isOptional(attribute.getMCType())>
     if ( this.${attributeName}.isPresent() != comp.${attributeName}.isPresent() ||
        (this.${attributeName}.isPresent() && !this.${attributeName}.get().equals(comp.${attributeName}.get())) ) {
       return false;
@@ -31,7 +30,7 @@ ${tc.signature("astcdClass", "simpleClassName")}
     }
 	      </#if>
 	    </#if>  
-      </#list>      
-    return true;     
-    </#if> 
+      </#list>
+    return true;
+    </#if>
 

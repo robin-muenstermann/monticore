@@ -149,7 +149,7 @@ public class GrammarPrettyPrinter
     CommentPrettyPrinter.printPostComments(a, getPrinter());
 
   }
-
+  
   @Override
   public void handle(ASTBlock a) {
     CommentPrettyPrinter.printPreComments(a, getPrinter());
@@ -476,7 +476,8 @@ public class GrammarPrettyPrinter
     String comma = "";
     for (ASTMethodParameter x : a.getMethodParameterList()) {
       getPrinter().print(comma);
-      getPrinter().print(x.getType() + " " + x.getName());
+      x.getType().accept(getRealThis());
+      getPrinter().print(" " + x.getName());
       comma = ", ";
     }
 

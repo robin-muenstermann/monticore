@@ -1,18 +1,19 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java._visitor.visitor_interface;
 
-import de.monticore.codegen.cd2java.AbstractDecorator;
+import de.monticore.cd.cd4analysis._ast.*;
+import de.monticore.codegen.cd2java.AbstractCreator;
 import de.monticore.codegen.cd2java._visitor.VisitorService;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.TemplateHookPoint;
-import de.monticore.types.types._ast.ASTType;
-import de.monticore.umlcd4a.cd4analysis._ast.*;
+import de.monticore.types.mcbasictypes._ast.ASTMCType;
 
 import static de.monticore.codegen.cd2java.CoreTemplates.EMPTY_BODY;
 import static de.monticore.codegen.cd2java._symboltable.SymbolTableConstants.SYMBOL_FULL_NAME;
 import static de.monticore.codegen.cd2java._symboltable.SymbolTableConstants.SYMBOL_TABLE_PACKGE;
 import static de.monticore.codegen.cd2java._visitor.VisitorConstants.*;
 
-public class SymbolVisitorDecorator extends AbstractDecorator<ASTCDCompilationUnit, ASTCDInterface> {
+public class SymbolVisitorDecorator extends AbstractCreator<ASTCDCompilationUnit, ASTCDInterface> {
 
   private final VisitorInterfaceDecorator visitorInterfaceDecorator;
 
@@ -55,12 +56,12 @@ public class SymbolVisitorDecorator extends AbstractDecorator<ASTCDCompilationUn
   }
 
   protected ASTCDMethod addVisitASTNodeMethods() {
-    ASTType astNodeType = getCDTypeFacade().createTypeByDefinition(SYMBOL_FULL_NAME);
+    ASTMCType astNodeType = getCDTypeFacade().createTypeByDefinition(SYMBOL_FULL_NAME);
     return visitorService.getVisitorMethod(VISIT, astNodeType);
   }
 
   protected ASTCDMethod addEndVisitASTNodeMethods() {
-    ASTType astNodeType = getCDTypeFacade().createTypeByDefinition(SYMBOL_FULL_NAME);
+    ASTMCType astNodeType = getCDTypeFacade().createTypeByDefinition(SYMBOL_FULL_NAME);
     return visitorService.getVisitorMethod(END_VISIT, astNodeType);
   }
 

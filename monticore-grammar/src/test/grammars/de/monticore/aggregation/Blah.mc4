@@ -1,4 +1,4 @@
-/* (c)  https://github.com/MontiCore/monticore */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.aggregation;
 
@@ -7,7 +7,6 @@ grammar Blah extends de.monticore.MCBasics {
   BlahModel = "blahmodel" "{" Blub* "}";
 
   scope symbol Blub = "blubScope" Name "{" (Dummy|Blub)* "}";
-
 
   symbol Dummy = "symbol" Name;
 

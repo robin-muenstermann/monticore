@@ -1,6 +1,11 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java._ast.ast_interface;
 
-import de.monticore.codegen.cd2java.AbstractDecorator;
+import de.monticore.cd.cd4analysis._ast.ASTCDAttribute;
+import de.monticore.cd.cd4analysis._ast.ASTCDInterface;
+import de.monticore.cd.cd4analysis._ast.ASTCDMethod;
+import de.monticore.cd.cd4analysis._ast.ASTCDParameter;
+import de.monticore.codegen.cd2java.AbstractTransformer;
 import de.monticore.codegen.cd2java._ast.ast_class.ASTScopeDecorator;
 import de.monticore.codegen.cd2java._ast.ast_class.ASTService;
 import de.monticore.codegen.cd2java._ast.ast_class.ASTSymbolDecorator;
@@ -8,11 +13,9 @@ import de.monticore.codegen.cd2java._visitor.VisitorService;
 import de.monticore.codegen.cd2java.methods.MethodDecorator;
 import de.monticore.codegen.mc2cd.MC2CDStereotypes;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.monticore.types.types._ast.ASTType;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDAttribute;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDInterface;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDMethod;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDParameter;
+import de.monticore.types.mcbasictypes._ast.ASTMCReturnType;
+import de.monticore.types.mcbasictypes._ast.ASTMCType;
+import de.monticore.types.mcbasictypes._ast.MCBasicTypesMill;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +24,7 @@ import static de.monticore.codegen.cd2java._ast.ast_class.ASTConstants.ACCEPT_ME
 import static de.monticore.codegen.cd2java._ast.ast_class.ASTConstants.AST_INTERFACE;
 import static de.monticore.codegen.cd2java.factories.CDModifier.PUBLIC_ABSTRACT;
 
-public class ASTInterfaceDecorator extends AbstractDecorator<ASTCDInterface, ASTCDInterface> {
+public class ASTInterfaceDecorator extends AbstractTransformer<ASTCDInterface> {
 
   private final ASTService astService;
 
@@ -48,21 +51,21 @@ public class ASTInterfaceDecorator extends AbstractDecorator<ASTCDInterface, AST
   }
 
   @Override
-  public ASTCDInterface decorate(ASTCDInterface input) {
-    input.addCDMethod(getAcceptMethod(visitorService.getVisitorType()));
-    input.addInterface(getCDTypeFacade().createReferenceTypeByDefinition(AST_INTERFACE));
-    input.addInterface(astService.getASTBaseInterface());
-    input.clearCDAttributes();
+  public ASTCDInterface decorate(final ASTCDInterface originalInput, ASTCDInterface changedInput) {
+    changedInput.addCDMethod(getAcceptMethod());
+    changedInput.addInterface(getCDTypeFacade().createReferenceTypeByDefinition(AST_INTERFACE));
+    changedInput.addInterface(astService.getASTBaseInterface());
+    changedInput.clearCDAttributes();
 
     methodDecorator.disableTemplates();
 
-    List<ASTCDAttribute> symbolAttributes = symbolDecorator.decorate(input);
-    input.addAllCDMethods(addSymbolMethods(symbolAttributes));
+    List<ASTCDAttribute> symbolAttributes = symbolDecorator.decorate(originalInput);
+    changedInput.addAllCDMethods(addSymbolMethods(symbolAttributes));
 
-    List<ASTCDAttribute> scopeAttributes = scopeDecorator.decorate(input);
-    input.addAllCDMethods(addScopeMethods(scopeAttributes));
+    List<ASTCDAttribute> scopeAttributes = scopeDecorator.decorate(originalInput);
+    changedInput.addAllCDMethods(addScopeMethods(scopeAttributes));
 
-    return input;
+    return changedInput;
   }
 
   protected List<ASTCDMethod> addScopeMethods(List<ASTCDAttribute> astcdAttributes) {
@@ -93,8 +96,10 @@ public class ASTInterfaceDecorator extends AbstractDecorator<ASTCDInterface, AST
 
   }
 
-  protected ASTCDMethod getAcceptMethod(ASTType visitorType) {
+  protected ASTCDMethod getAcceptMethod() {
+    ASTMCType visitorType = visitorService.getVisitorType();
     ASTCDParameter parameter = getCDParameterFacade().createParameter(visitorType, "visitor");
-    return getCDMethodFacade().createMethod(PUBLIC_ABSTRACT, getCDTypeFacade().createVoidType(), ACCEPT_METHOD, parameter);
+    ASTMCReturnType returnType = MCBasicTypesMill.mCReturnTypeBuilder().setMCVoidType(getCDTypeFacade().createVoidType()).build();
+    return getCDMethodFacade().createMethod(PUBLIC_ABSTRACT, returnType, ACCEPT_METHOD, parameter);
   }
 }

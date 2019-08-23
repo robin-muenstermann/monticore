@@ -1,6 +1,8 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.typescalculator;
 
 import de.monticore.types.mcbasictypes._ast.ASTConstantsMCBasicTypes;
+import de.monticore.types.mcbasictypes._ast.ASTMCBasicTypesNode;
 import de.monticore.types.mcbasictypes._ast.ASTMCType;
 import de.monticore.types.mcbasictypes._ast.MCBasicTypesMill;
 
@@ -211,4 +213,13 @@ public class TypesCalculatorHelper {
     }
     return false;
   }
+
+
+  public static TypeExpression mcType2TypeExpression(ASTMCBasicTypesNode type) {
+    TypeExpression typeExpression = new TypeExpression();
+    MCTypeVisitor visitor = new MCTypeVisitor();
+    type.accept(visitor);
+    return visitor.mapping.get(type);
+  }
+
 }

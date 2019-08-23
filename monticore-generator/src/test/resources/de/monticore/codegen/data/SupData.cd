@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.data;
 
 import de.monticore.codegen.data.Data.*;
@@ -5,13 +6,15 @@ import de.monticore.codegen.data.Data.*;
 classdiagram SupData {
 
     public class SupB extends de.monticore.codegen.data.Data.B{
-        protected int i;
+        <<inherited>> protected int i;
         <<inherited>> protected String s;
+        protected boolean b;
     }
 
     public class SupA extends de.monticore.codegen.data.SupData.SupB{
-        protected int i;
-        protected boolean b;
+        <<inherited>> protected int i;
+        <<inherited>> protected boolean b;
         <<inherited>> protected String s;
+        protected char c;
     }
 }

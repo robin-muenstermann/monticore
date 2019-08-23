@@ -2,7 +2,7 @@
 package de.monticore.templateclassgenerator.util;
 
 import de.monticore.ast.ASTNode;
-import de.monticore.symboltable.CommonSymbol;
+import de.monticore.symboltable.ISymbol;
 
 import java.nio.file.Path;
 
@@ -12,6 +12,6 @@ import java.nio.file.Path;
  */
 public interface GeneratorInterface {
   
-  public void generate(Path filepath, ASTNode node, CommonSymbol symbol);
+  public void generate(Path filepath, ASTNode node, ISymbol symbol);
   
 }

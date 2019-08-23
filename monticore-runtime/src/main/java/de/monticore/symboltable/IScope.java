@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.symboltable;
 
 import com.google.common.collect.FluentIterable;
@@ -102,7 +103,8 @@ public interface IScope  {
       return Optional.of(resolved.iterator().next());
     }
     else if (resolved.size() > 1) {
-      throw new ResolvedSeveralEntriesForSymbolException("0xA4095 Found " + resolved.size() + " symbols: " + resolved,
+      throw new ResolvedSeveralEntriesForSymbolException("0xA4095 Found " + resolved.size()
+              + " symbols: " + resolved.iterator().next().getFullName(),
           resolved);
     }
     

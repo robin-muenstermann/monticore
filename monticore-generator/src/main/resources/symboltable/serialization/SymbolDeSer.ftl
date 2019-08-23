@@ -15,8 +15,6 @@ package ${genHelper.getTargetPackage()}.serialization;
 
 import ${genHelper.getSymbolTablePackage()}.*;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Optional;
 import java.util.List;
 
@@ -53,7 +51,7 @@ public class ${className} implements IDeSer<${symbolName}Symbol> {
    */
   @Override
   public Optional<${symbolName}Symbol> deserialize(String serialized) {
-    JsonObject symbol = JsonParser.deserializeJsonObject(serialized);
+    JsonObject symbol = JsonParser.parseJsonObject(serialized);
     return deserialize(symbol);
   }
   
@@ -73,6 +71,7 @@ public class ${className} implements IDeSer<${symbolName}Symbol> {
     builder.set${attr.getName()?cap_first}(deserialize${attr.getName()?cap_first}(symbolJson));
 </#list>   
 </#if> 
+    deserializeAdditionalAttributes(builder, symbolJson);
     return builder.build();
   }
   
@@ -106,5 +105,14 @@ public class ${className} implements IDeSer<${symbolName}Symbol> {
   }
 </#list>   
 </#if>
+
+  /**
+   * Override this method to deserialize additional attributes
+   * @param builder
+   * @param symbolJson
+   */
+  protected void deserializeAdditionalAttributes(${symbolName}SymbolBuilder builder, JsonObject symbolJson) {
+    
+  }
   
 }

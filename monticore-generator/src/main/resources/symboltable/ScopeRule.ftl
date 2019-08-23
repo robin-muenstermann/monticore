@@ -4,32 +4,13 @@ ${tc.signature("scopeRule")}
 <#assign genHelper = glex.getGlobalVar("stHelper")>
 
 <#list scopeRule.getAdditionalAttributeList() as attr>
-  <#assign attrName="_" + attr.getName()>
-  <#assign attrType=attr.getMCType().getBaseName()>
-  private ${genHelper.getQualifiedASTName(attrType)} ${attrName};
+  <#assign attrName=attr.getName()>
+  <#assign attrType=stHelper.deriveAdditionalAttributeTypeWithMult(attr)>
+  private ${genHelper.getQualifiedASTName(attrType)} _${attrName};
+  
 </#list>
 
-<#list scopeRule.getAdditionalAttributeList() as attr>
-  <#assign attrName=attr.getName()>
-  <#assign attrType=attr.getMCType().getBaseName()>
-  <#if attrType == "boolean" || attrType == "Boolean">
-    <#if attr.getName()?starts_with("is")>
-      <#assign methodName=attr.getName()>
-    <#else>
-      <#assign methodName="is" + attr.getName()?cap_first>
-    </#if>
-  <#else>
-    <#assign methodName="get" + attr.getName()?cap_first>
-  </#if>
-  public ${attrType} ${methodName}() {
-    return this._${attrName};
-  }
-  
-  public void set${attrName?cap_first}(${attrType} ${attrName}) {
-    this._${attrName} = ${attrName};
-  }
-  
-</#list>
+${includeArgs("symboltable.ScopeRuleGetSet", scopeRule, false)}
 
 <#list scopeRule.getMethodList() as meth>
   ${genHelper.printMethod(meth)}

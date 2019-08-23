@@ -1,8 +1,11 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.types.mccollectiontypes._ast;
 
 import com.google.common.collect.Lists;
+import de.monticore.types.mcbasictypes._symboltable.MCTypeSymbol;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ASTMCOptionalType extends ASTMCOptionalTypeTOP {
 
@@ -18,6 +21,7 @@ public class ASTMCOptionalType extends ASTMCOptionalTypeTOP {
     }
     @Override
     public List<String> getNameList() {
+
         return Lists.newArrayList(getName());
     }
     @Override
@@ -37,5 +41,4 @@ public class ASTMCOptionalType extends ASTMCOptionalTypeTOP {
     public void setMCTypeArgumentList(List<ASTMCTypeArgument> arguments) {
         setMCTypeArgument(arguments.get(0));
     }
-
 }

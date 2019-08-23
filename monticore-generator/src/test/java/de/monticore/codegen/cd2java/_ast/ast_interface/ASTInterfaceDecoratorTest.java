@@ -1,5 +1,7 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java._ast.ast_interface;
 
+import de.monticore.cd.cd4analysis._ast.*;
 import de.monticore.codegen.cd2java.AbstractService;
 import de.monticore.codegen.cd2java.CoreTemplates;
 import de.monticore.codegen.cd2java.DecoratorTestCase;
@@ -13,16 +15,11 @@ import de.monticore.codegen.cd2java.methods.MethodDecorator;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.monticore.types.types._ast.ASTReferenceType;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDInterface;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDMethod;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDParameter;
+import de.monticore.types.mcbasictypes._ast.ASTMCObjectType;
 import org.junit.Before;
 import org.junit.Test;
 
 import static de.monticore.codegen.cd2java.DecoratorAssert.assertDeepEquals;
-import static de.monticore.codegen.cd2java.DecoratorAssert.assertVoid;
 import static de.monticore.codegen.cd2java.DecoratorTestUtil.getInterfaceBy;
 import static de.monticore.codegen.cd2java.DecoratorTestUtil.getMethodBy;
 import static de.monticore.codegen.cd2java.factories.CDModifier.PUBLIC_ABSTRACT;
@@ -47,7 +44,10 @@ public class ASTInterfaceDecoratorTest extends DecoratorTestCase {
     ASTInterfaceDecorator decorator = new ASTInterfaceDecorator(this.glex, new ASTService(astcdCompilationUnit)
         , new VisitorService(astcdCompilationUnit), new ASTSymbolDecorator(this.glex, symbolTableService),
         new ASTScopeDecorator(this.glex, symbolTableService), new MethodDecorator(this.glex));
-    this.dataInterface = decorator.decorate(interfaceBy);
+    ASTCDInterface changeInterface = CD4AnalysisMill.cDInterfaceBuilder().setName(interfaceBy.getName())
+        .setModifier(interfaceBy.getModifier())
+        .build();
+    this.dataInterface = decorator.decorate(interfaceBy, changeInterface);
   }
 
   @Test
@@ -69,13 +69,13 @@ public class ASTInterfaceDecoratorTest extends DecoratorTestCase {
   public void testAcceptMethod(){
     ASTCDMethod method = getMethodBy("accept",  dataInterface);
     assertDeepEquals(PUBLIC_ABSTRACT, method.getModifier());
-    assertVoid(method.getReturnType());
+    assertTrue(method.getMCReturnType().isPresentMCVoidType());
 
     assertFalse(method.isEmptyCDParameters());
     assertEquals(1, method.sizeCDParameters());
 
     ASTCDParameter parameter = method.getCDParameter(0);
-    assertDeepEquals("de.monticore.codegen.data.datainterface._visitor.DataInterfaceVisitor", parameter.getType());
+    assertDeepEquals("de.monticore.codegen.data.datainterface._visitor.DataInterfaceVisitor", parameter.getMCType());
     assertEquals("visitor", parameter.getName());
   }
 
@@ -86,13 +86,13 @@ public class ASTInterfaceDecoratorTest extends DecoratorTestCase {
 
   @Test
   public void testASTNodeSuperInterface(){
-    ASTReferenceType superInteface = dataInterface.getInterface(0);
+    ASTMCObjectType superInteface = dataInterface.getInterface(0);
     assertDeepEquals("de.monticore.ast.ASTNode", superInteface);
   }
 
   @Test
   public void testASTDataInterfaceNodeSuperInterface(){
-    ASTReferenceType superInteface = dataInterface.getInterface(1);
+    ASTMCObjectType superInteface = dataInterface.getInterface(1);
     assertDeepEquals("de.monticore.codegen.data.datainterface._ast.ASTDataInterfaceNode", superInteface);
   }
 
@@ -102,7 +102,7 @@ public class ASTInterfaceDecoratorTest extends DecoratorTestCase {
     generatorSetup.setGlex(glex);
     GeneratorEngine generatorEngine = new GeneratorEngine(generatorSetup);
     StringBuilder sb = generatorEngine.generate(CoreTemplates.INTERFACE, dataInterface, dataInterface);
-    System.out.println(sb.toString());
+    // TODO Check System.out.println(sb.toString());
   }
 
 }

@@ -1,7 +1,8 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java.factories;
 
-import de.monticore.umlcd4a.cd4analysis._ast.ASTModifier;
-import de.monticore.umlcd4a.cd4analysis._ast.CD4AnalysisMill;
+import de.monticore.cd.cd4analysis._ast.ASTModifier;
+import de.monticore.cd.cd4analysis._ast.CD4AnalysisMill;
 
 public enum CDModifier {
 

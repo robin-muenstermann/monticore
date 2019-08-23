@@ -1,14 +1,15 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java.methods.mutator;
 
-import de.monticore.codegen.cd2java.AbstractDecorator;
+import de.monticore.cd.cd4analysis._ast.ASTCDAttribute;
+import de.monticore.cd.cd4analysis._ast.ASTCDMethod;
+import de.monticore.cd.cd4analysis._ast.ASTCDParameter;
+import de.monticore.codegen.cd2java.AbstractCreator;
 import de.monticore.codegen.cd2java.factories.DecorationHelper;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.TemplateHookPoint;
-import de.monticore.types.TypesHelper;
-import de.monticore.types.types._ast.ASTType;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDAttribute;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDMethod;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDParameter;
+import de.monticore.types.MCCollectionTypesHelper;
+import de.monticore.types.mcbasictypes._ast.ASTMCType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -17,7 +18,7 @@ import java.util.List;
 import static de.monticore.codegen.cd2java.CoreTemplates.EMPTY_BODY;
 import static de.monticore.codegen.cd2java.factories.CDModifier.PUBLIC;
 
-public class OptionalMutatorDecorator extends AbstractDecorator<ASTCDAttribute, List<ASTCDMethod>> {
+public class OptionalMutatorDecorator extends AbstractCreator<ASTCDAttribute, List<ASTCDMethod>> {
 
   protected static final String SET = "set%s";
 
@@ -43,7 +44,7 @@ public class OptionalMutatorDecorator extends AbstractDecorator<ASTCDAttribute, 
 
   protected ASTCDMethod createSetMethod(final ASTCDAttribute ast) {
     String name = String.format(SET, naiveAttributeName);
-    ASTType parameterType = TypesHelper.getSimpleReferenceTypeFromOptional(ast.getType()).deepClone();
+    ASTMCType parameterType = MCCollectionTypesHelper.getReferenceTypeFromOptional(ast.getMCType()).getMCTypeOpt().get().deepClone();
     ASTCDParameter parameter = this.getCDParameterFacade().createParameter(parameterType, ast.getName());
     ASTCDMethod method = this.getCDMethodFacade().createMethod(PUBLIC, name, parameter);
     this.replaceTemplate(EMPTY_BODY, method, new TemplateHookPoint("methods.opt.Set", ast));

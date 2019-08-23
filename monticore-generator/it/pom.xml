@@ -5,7 +5,7 @@
   <parent>
     <groupId>de.monticore</groupId>
     <artifactId>monticore</artifactId>
-    <version>5.0.6</version>
+    <version>5.2.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -33,11 +33,6 @@
       <groupId>de.monticore</groupId>
       <artifactId>monticore-grammar</artifactId>
     </dependency>
-    <dependency>
-      <groupId>de.monticore</groupId>
-      <artifactId>javaDSL</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -88,7 +83,7 @@
           <plugin>
             <groupId>de.monticore.mojo</groupId>
             <artifactId>monticore-maven-plugin</artifactId>
-            <version>5.0.6</version><!--$NO-MVN-MAN-VER$ -->
+            <version>5.2.0</version><!--$NO-MVN-MAN-VER$ -->
             <executions>
               <execution>
                 <id>it-python</id>
@@ -173,7 +168,7 @@
           <plugin>
             <groupId>de.monticore.mojo</groupId>
             <artifactId>monticore-maven-plugin</artifactId>
-            <version>5.0.6</version><!--$NO-MVN-MAN-VER$ -->
+            <version>5.2.0</version><!--$NO-MVN-MAN-VER$ -->
             <executions>
               <execution>
                 <id>it-python</id>
