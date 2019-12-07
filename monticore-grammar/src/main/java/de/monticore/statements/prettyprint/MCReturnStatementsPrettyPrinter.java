@@ -2,15 +2,14 @@
 
 package de.monticore.statements.prettyprint;
 
+import de.monticore.expressions.prettyprint.ExpressionsBasisPrettyPrinter;
 import de.monticore.prettyprint.CommentPrettyPrinter;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.statements.mcreturnstatements._ast.ASTMCReturnStatementsNode;
 import de.monticore.statements.mcreturnstatements._ast.ASTReturnStatement;
 import de.monticore.statements.mcreturnstatements._visitor.MCReturnStatementsVisitor;
 
-public class MCReturnStatementsPrettyPrinter extends MCCommonStatementsPrettyPrinter implements
-        MCReturnStatementsVisitor {
-
+public class MCReturnStatementsPrettyPrinter extends ExpressionsBasisPrettyPrinter implements MCReturnStatementsVisitor {
 
   private MCReturnStatementsVisitor realThis = this;
 
@@ -18,6 +17,9 @@ public class MCReturnStatementsPrettyPrinter extends MCCommonStatementsPrettyPri
     super(out);
   }
 
+  public IndentPrinter getPrinter() {
+    return this.printer;
+  }
 
   @Override
   public void handle(ASTReturnStatement a) {

@@ -1,8 +1,9 @@
 <#-- (c) https://github.com/MontiCore/monticore -->
 ${tc.signature("cdEnum")}
-
+/* (c) https://github.com/MontiCore/monticore */
 ${tc.include("core.Package")}
 
+${tc.include("core.Annotations")}
 public enum ${cdEnum.getName()}<#if !cdEnum.isEmptyInterfaces()> implements ${cdEnum.printInterfaces()}</#if> {
 
 <#list cdEnum.getCDEnumConstantList() as constants>

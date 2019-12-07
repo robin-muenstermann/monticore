@@ -2,29 +2,20 @@
 
 package de.se_rwth.monticoreeditor;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import de.monticore.ast.ASTNode;
+import de.monticore.utils.ASTNodes;
+import de.se_rwth.langeditor.modelstates.ModelState;
+import de.se_rwth.langeditor.util.ResourceLocator;
+import org.eclipse.core.resources.IProject;
+
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
-
-import de.monticore.grammar.grammar._ast.ASTProd;
-import de.monticore.grammar.grammar._symboltable.ProdSymbol;
-import org.eclipse.core.resources.IProject;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-
-import de.monticore.ast.ASTNode;
-import de.monticore.codegen.mc2cd.MCGrammarSymbolTableHelper;
-import de.monticore.grammar.grammar._ast.ASTMCGrammar;
-import de.monticore.grammar.grammar._ast.ASTNonTerminal;
-import de.monticore.grammar.grammar._ast.ASTNonTerminalSeparator;
-import de.monticore.symboltable.Symbol;
-import de.monticore.utils.ASTNodes;
-import de.se_rwth.langeditor.modelstates.ModelState;
-import de.se_rwth.langeditor.util.ResourceLocator;
 
 class Resolving {
   
@@ -68,10 +59,6 @@ class Resolving {
 //    }
     
     return Optional.empty();
-  }
-  
-  private Supplier<Optional<ASTProd>> createSupplier(ASTMCGrammar astNode, String name) {
-    return () -> MCGrammarSymbolTableHelper.resolveRule(astNode, name).flatMap(ProdSymbol::getAstNode);
   }
   
   private <T extends ASTNode> Optional<T> getEnclosingASTNode(ASTNode astNode, Class<T> type) {

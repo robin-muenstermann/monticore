@@ -1,9 +1,11 @@
 <#-- (c) https://github.com/MontiCore/monticore -->
 ${tc.signature("cdInterface")}
+/* (c) https://github.com/MontiCore/monticore */
 ${tc.include("core.Package")}
 
 ${tc.include("core.Imports")}
 
+${tc.include("core.Annotations")}
 ${cdInterface.printModifier()} interface ${cdInterface.getName()} <#rt><#lt>
 <#if !cdInterface.isEmptyInterfaces()>extends ${cdInterface.printInterfaces()} </#if>{
 

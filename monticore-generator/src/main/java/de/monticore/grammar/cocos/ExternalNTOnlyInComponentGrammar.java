@@ -26,30 +26,26 @@ public class ExternalNTOnlyInComponentGrammar implements GrammarASTMCGrammarCoCo
   
   @Override
   public void check(ASTMCGrammar a) {
-    MCGrammarSymbol grammarSymbol = a.getMCGrammarSymbol();
+    MCGrammarSymbol grammarSymbol = a.getSymbol();
 
     if (!a.isComponent()) {
-//      for (ASTProd p : a.getExternalProdList()) {
-//        Log.error(String.format(ERROR_CODE + ERROR_MSG_FORMAT, p.getName()),
-//                a.get_SourcePositionStart());
-//      }
       List<ProdSymbol> externalProds = grammarSymbol.getProds().stream().
-          filter(ProdSymbol::isExternal).collect(Collectors.toList());
+          filter(ProdSymbol::isIsExternal).collect(Collectors.toList());
       for(MCGrammarSymbol symbol: grammarSymbol.getAllSuperGrammars()){
         Collection<ProdSymbol> prodSymbols = symbol.getProds();
         for(ProdSymbol mcProdSymbol : prodSymbols){
-          if (mcProdSymbol.isExternal()) {
+          if (mcProdSymbol.isIsExternal()) {
             externalProds.add(mcProdSymbol);
           }
         }
       }
 
       List<ProdSymbol> prods = grammarSymbol.getProds().stream().
-          filter(prodSymbol -> prodSymbol.isClass() || prodSymbol.isAbstract()).collect(Collectors.toList());
+          filter(prodSymbol -> prodSymbol.isClass() || prodSymbol.isIsAbstract()).collect(Collectors.toList());
       for(MCGrammarSymbol symbol: grammarSymbol.getAllSuperGrammars()){
         Collection<ProdSymbol> prodSymbols = symbol.getProds();
         for(ProdSymbol mcProdSymbol : prodSymbols){
-          if (mcProdSymbol.isAbstract() || mcProdSymbol.isClass()) {
+          if (mcProdSymbol.isIsAbstract() || mcProdSymbol.isClass()) {
             prods.add(mcProdSymbol);
           }
         }
@@ -66,10 +62,14 @@ public class ExternalNTOnlyInComponentGrammar implements GrammarASTMCGrammarCoCo
         }
       }
 
-      if(!externalProds.isEmpty()){
-        Log.error(String.format(ERROR_CODE + ERROR_MSG_FORMAT, externalProds.get(0).getName()), a.get_SourcePositionStart());
+      for (ProdSymbol prodSymbol: externalProds) {
+        for (ProdSymbol prod : prods) {
+            if (prod.getProdComponent(prodSymbol.getName()).isPresent()) {
+              Log.error(String.format(ERROR_CODE + ERROR_MSG_FORMAT, prodSymbol.getName()), a.get_SourcePositionStart());
+          }
+        }
       }
-    }
+     }
   }
 
 }

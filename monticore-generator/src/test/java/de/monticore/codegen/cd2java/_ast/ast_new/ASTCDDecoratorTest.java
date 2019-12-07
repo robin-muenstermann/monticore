@@ -1,6 +1,9 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java._ast.ast_new;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
 import de.monticore.cd.cd4analysis._ast.ASTCDClass;
 import de.monticore.cd.cd4analysis._ast.ASTCDCompilationUnit;
 import de.monticore.cd.prettyprint.CD4CodePrinter;
@@ -39,8 +42,9 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static de.monticore.codegen.cd2java.DecoratorTestUtil.getClassBy;
+import static org.junit.Assert.*;
+
 
 public class ASTCDDecoratorTest extends DecoratorTestCase {
 
@@ -116,12 +120,30 @@ public class ASTCDDecoratorTest extends DecoratorTestCase {
   }
 
   @Test
+  public void testNewModifierObjects(){
+    // test that the modifier of AST classes have a different object ID
+    ASTCDClass originalClass = getClassBy("A", originalCompilationUnit);
+    ASTCDClass decoratedClass = getClassBy("A", decoratedCompilationUnit);
+
+    assertTrue(originalClass.isPresentModifier());
+    assertTrue(decoratedClass.isPresentModifier());
+
+    assertNotEquals(originalClass.getModifier().toString(), decoratedClass.getModifier().toString());
+    assertNotEquals(originalClass.getModifier(), decoratedClass.getModifier());
+  }
+
+  @Test
   public void testGeneratedCode() {
     GeneratorSetup generatorSetup = new GeneratorSetup();
     generatorSetup.setGlex(glex);
     GeneratorEngine generatorEngine = new GeneratorEngine(generatorSetup);
     for (ASTCDClass clazz : decoratedCompilationUnit.getCDDefinition().getCDClassList()) {
       StringBuilder sb = generatorEngine.generate(CoreTemplates.CLASS, clazz, clazz);
+      // test parsing
+      ParserConfiguration configuration = new ParserConfiguration();
+      JavaParser parser = new JavaParser(configuration);
+      ParseResult parseResult = parser.parse(sb.toString());
+      assertTrue(parseResult.isSuccessful());
     }
   }
 }

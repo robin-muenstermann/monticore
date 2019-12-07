@@ -8,13 +8,12 @@ import de.monticore.codegen.mc2cd.MC2CDStereotypes;
 import de.monticore.codegen.mc2cd.TransformationHelper;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.grammar.grammar._ast.ASTASTRule;
+import de.monticore.grammar.grammar._ast.ASTGrammarMethod;
 import de.monticore.grammar.grammar._ast.ASTMCGrammar;
-import de.monticore.grammar.grammar._ast.ASTMethod;
 import de.monticore.grammar.grammar._ast.ASTMethodParameter;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
 import de.monticore.statements.mccommonstatements._ast.ASTBlockStatement;
-import de.monticore.types.FullGenericTypesPrinter;
-import de.monticore.types.mcbasictypes._ast.MCBasicTypesMill;
+import de.monticore.types.mcfullgenerictypes._ast.MCFullGenericTypesMill;
 import de.monticore.utils.Link;
 
 import java.util.function.UnaryOperator;
@@ -43,14 +42,14 @@ public class MethodTranslation implements UnaryOperator<Link<ASTMCGrammar, ASTCD
 
     for (Link<ASTASTRule, ASTCDClass> link : rootLink.getLinks(ASTASTRule.class,
         ASTCDClass.class)) {
-      for (ASTMethod method : link.source().getMethodList()) {
+      for (ASTGrammarMethod method : link.source().getGrammarMethodList()) {
         link.target().getCDMethodList().add(translateASTMethodToASTCDMethod(method));
       }
     }
 
     for (Link<ASTASTRule, ASTCDInterface> link : rootLink.getLinks(ASTASTRule.class,
         ASTCDInterface.class)) {
-      for (ASTMethod method : link.source().getMethodList()) {
+      for (ASTGrammarMethod method : link.source().getGrammarMethodList()) {
         link.target().getCDMethodList().add(translateASTMethodToASTCDMethodInterface(method));
       }
     }
@@ -58,14 +57,14 @@ public class MethodTranslation implements UnaryOperator<Link<ASTMCGrammar, ASTCD
     return rootLink;
   }
 
-  private ASTCDMethod createSimpleCDMethod(ASTMethod method) {
+  private ASTCDMethod createSimpleCDMethod(ASTGrammarMethod method) {
     ASTCDMethod cdMethod = CD4AnalysisNodeFactory.createASTCDMethod();
     cdMethod.setModifier(TransformationHelper.createPublicModifier());
     cdMethod.setName(method.getName());
-    String dotSeparatedName = FullGenericTypesPrinter.printReturnType(method.getMCReturnType());
+    String dotSeparatedName = MCFullGenericTypesMill.mcFullGenericTypesPrettyPrinter().prettyprint(method.getMCReturnType());
     cdMethod.setMCReturnType(TransformationHelper.createReturnType(dotSeparatedName));
     for (ASTMethodParameter param : method.getMethodParameterList()) {
-      String typeName = FullGenericTypesPrinter.printType(param.getType());
+      String typeName = MCFullGenericTypesMill.mcFullGenericTypesPrettyPrinter().prettyprint(param.getType());
       cdMethod.getCDParameterList().add(TransformationHelper.createParameter(typeName, param.getName()));
     }
     return cdMethod;
@@ -79,7 +78,7 @@ public class MethodTranslation implements UnaryOperator<Link<ASTMCGrammar, ASTCD
         code.toString());
   }
 
-  private ASTCDMethod translateASTMethodToASTCDMethodInterface(ASTMethod method) {
+  private ASTCDMethod translateASTMethodToASTCDMethodInterface(ASTGrammarMethod method) {
     ASTCDMethod cdMethod = createSimpleCDMethod(method);
     if (method.getBody() instanceof ASTAction) {
       StringBuilder code = new StringBuilder();
@@ -95,7 +94,7 @@ public class MethodTranslation implements UnaryOperator<Link<ASTMCGrammar, ASTCD
     return cdMethod;
   }
 
-  private ASTCDMethod translateASTMethodToASTCDMethod(ASTMethod method) {
+  private ASTCDMethod translateASTMethodToASTCDMethod(ASTGrammarMethod method) {
     ASTCDMethod cdMethod = createSimpleCDMethod(method);
     if (method.getBody() instanceof ASTAction) {
       StringBuilder code = new StringBuilder();

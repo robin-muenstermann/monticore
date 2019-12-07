@@ -2,25 +2,23 @@
 package de.monticore.codegen.cd2java.data;
 
 import de.monticore.cd.cd4analysis._ast.*;
-import de.monticore.codegen.GeneratorHelper;
 import de.monticore.codegen.cd2java.AbstractService;
 import de.monticore.codegen.cd2java.AbstractTransformer;
+import de.monticore.codegen.cd2java.factories.DecorationHelper;
 import de.monticore.codegen.cd2java.methods.MethodDecorator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.StringHookPoint;
 import de.monticore.generating.templateengine.TemplateHookPoint;
-import de.monticore.types.mcbasictypes._ast.ASTMCReturnType;
 import de.monticore.types.mcbasictypes._ast.ASTMCType;
-import de.monticore.types.mcbasictypes._ast.MCBasicTypesMill;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static de.monticore.cd.facade.CDModifier.PROTECTED;
+import static de.monticore.cd.facade.CDModifier.PUBLIC;
 import static de.monticore.codegen.cd2java.CoreTemplates.EMPTY_BODY;
 import static de.monticore.codegen.cd2java.CoreTemplates.VALUE;
-import static de.monticore.codegen.cd2java.factories.CDModifier.PROTECTED;
-import static de.monticore.codegen.cd2java.factories.CDModifier.PUBLIC;
 
 public class DataDecorator extends AbstractTransformer<ASTCDClass> {
 
@@ -46,9 +44,6 @@ public class DataDecorator extends AbstractTransformer<ASTCDClass> {
   public ASTCDClass decorate(final ASTCDClass originalClass, ASTCDClass changedClass) {
     this.clazzName = originalClass.deepClone().getName();
     changedClass.addCDConstructor(createDefaultConstructor(originalClass));
-    if (!originalClass.isEmptyCDAttributes()) {
-      changedClass.addCDConstructor(createFullConstructor(originalClass));
-    }
     if (originalClass.isPresentSuperclass()) {
       changedClass.setSuperclass(originalClass.getSuperclass());
     }
@@ -76,10 +71,10 @@ public class DataDecorator extends AbstractTransformer<ASTCDClass> {
   }
 
   protected void addAttributeDefaultValues(ASTCDAttribute attribute) {
-    if (GeneratorHelper.isListType(attribute.printType())) {
+    if (DecorationHelper.isListType(attribute.printType())) {
       this.replaceTemplate(VALUE, attribute, new StringHookPoint("= new java.util.ArrayList<>()"));
 
-    } else if (GeneratorHelper.isOptional(attribute)) {
+    } else if (DecorationHelper.isOptionalType(attribute.printType())) {
       this.replaceTemplate(VALUE, attribute, new StringHookPoint("= Optional.empty()"));
     }
   }
@@ -88,22 +83,12 @@ public class DataDecorator extends AbstractTransformer<ASTCDClass> {
     return this.getCDConstructorFacade().createDefaultConstructor(PROTECTED, clazz);
   }
 
-  protected ASTCDConstructor createFullConstructor(ASTCDClass clazz) {
-    //remove referenced symbol attributes, because they are only calculated
-    List<ASTCDAttribute> attributeList = clazz.deepClone().getCDAttributeList().stream()
-        .filter(x -> !service.isReferencedSymbolAttribute(x))
-        .collect(Collectors.toList());
-    ASTCDConstructor fullConstructor = this.getCDConstructorFacade().createConstructor(PROTECTED, clazz.getName(), getCDParameterFacade().createParameters(attributeList));
-    this.replaceTemplate(EMPTY_BODY, fullConstructor, new TemplateHookPoint("data.ConstructorAttributesSetter", attributeList));
-    return fullConstructor;
-  }
-
   protected List<ASTCDMethod> getAllDataMethods(ASTCDClass astcdClass, List<ASTCDAttribute> attributeList) {
     String simpleClassName = dataDecoratorUtil.getSimpleName(astcdClass);
 
     List<ASTCDMethod> methods = new ArrayList<>();
     ASTCDParameter objectParameter = getCDParameterFacade().createParameter(Object.class, "o");
-    ASTCDParameter forceSameOrderParameter = getCDParameterFacade().createParameter(getCDTypeFacade().createBooleanType(), "forceSameOrder");
+    ASTCDParameter forceSameOrderParameter = getCDParameterFacade().createParameter(getMCTypeFacade().createBooleanType(), "forceSameOrder");
 
     ASTCDMethod deepEqualsMethod = dataDecoratorUtil.createDeepEqualsMethod(objectParameter);
     this.replaceTemplate(EMPTY_BODY, deepEqualsMethod, new StringHookPoint("     return deepEquals(o, true);"));
@@ -147,10 +132,9 @@ public class DataDecorator extends AbstractTransformer<ASTCDClass> {
   protected ASTCDMethod createDeepCloneWithParam(ASTCDClass clazz, List<ASTCDAttribute> noInheritedAttributes) {
     String simpleName = dataDecoratorUtil.getSimpleName(clazz);
     // deep clone with result parameter
-    ASTMCType classType = this.getCDTypeFacade().createQualifiedType(simpleName);
+    ASTMCType classType = this.getMCTypeFacade().createQualifiedType(simpleName);
     ASTCDParameter parameter = getCDParameterFacade().createParameter(classType, "result");
-    ASTMCReturnType returnType = MCBasicTypesMill.mCReturnTypeBuilder().setMCType(classType).build();
-    ASTCDMethod deepCloneWithParam = this.getCDMethodFacade().createMethod(PUBLIC, returnType, DEEP_CLONE_METHOD, parameter);
+    ASTCDMethod deepCloneWithParam = this.getCDMethodFacade().createMethod(PUBLIC, classType, DEEP_CLONE_METHOD, parameter);
     this.replaceTemplate(EMPTY_BODY, deepCloneWithParam, new TemplateHookPoint("data.DeepCloneWithParameters", noInheritedAttributes));
     return deepCloneWithParam;
   }

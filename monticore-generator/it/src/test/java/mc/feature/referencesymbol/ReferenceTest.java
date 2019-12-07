@@ -62,8 +62,6 @@ public class ReferenceTest {
     assertTrue(astb.isPresent());
     assertFalse(astb.get().isPresentNameDefinition());
     assertFalse(astb.get().isPresentNameSymbol());
-    assertFalse(astb.get().getNameDefinitionOpt().isPresent());
-    assertFalse(astb.get().getNameSymbolOpt().isPresent());
   }
 
   @Test
@@ -77,20 +75,20 @@ public class ReferenceTest {
     assertNotNull(astTest.getEnclosingScope());
     assertNotNull(astReferenceToTest.getEnclosingScope());
     assertTrue(astReferenceToTest.isPresentNameSymbol());
-    assertTrue(astTest.isPresentTestSymbol());
+    assertTrue(astTest.isPresentSymbol());
     assertTrue(astReferenceToTest.isPresentNameSymbol());
 
     assertTrue(astReferenceToTest.isPresentNameDefinition());
 
     assertEquals(astReferenceToTest.getNameDefinition(), astTest);
-    assertEquals(astReferenceToTest.getNameSymbolOpt().get(), a);
+    assertEquals(astReferenceToTest.getNameSymbol(), a);
 
     //test setter
     astReferenceToTest.setName("B");
     assertTrue(astReferenceToTest.isPresentNameSymbol());
     assertTrue(astReferenceToTest.isPresentNameDefinition());
-    assertEquals(astReferenceToTest.getNameSymbolOpt().get(), b);
-    assertEquals(astReferenceToTest.getNameDefinitionOpt(), b.getAstNode());
+    assertEquals(astReferenceToTest.getNameSymbol(), b);
+    assertEquals(astReferenceToTest.getNameDefinition(), b.getAstNode());
 
     astReferenceToTest.setName(null);
     assertFalse(astReferenceToTest.isPresentNameDefinition());
@@ -109,26 +107,26 @@ public class ReferenceTest {
     assertNotNull(astTest.getEnclosingScope());
     assertNotNull(astOptionalRef.getEnclosingScope());
     assertTrue(astOptionalRef.isPresentNameSymbol());
-    assertTrue(astTest.isPresentTestSymbol());
+    assertTrue(astTest.isPresentSymbol());
     assertTrue(astOptionalRef.isPresentNameSymbol());
 
     assertTrue(astOptionalRef.isPresentNameDefinition());
 
     assertEquals(astOptionalRef.getNameDefinition(), astTest);
-    assertEquals(astOptionalRef.getNameSymbolOpt().get(), a);
+    assertEquals(astOptionalRef.getNameSymbol(), a);
 
     //test setter
     astOptionalRef.setName("B");
     assertTrue(astOptionalRef.isPresentNameDefinition());
     assertTrue(astOptionalRef.isPresentNameSymbol());
-    assertEquals(astOptionalRef.getNameDefinition(), b.getAstNode().get());
-    assertEquals(astOptionalRef.getNameSymbolOpt().get(), b);
+    assertEquals(astOptionalRef.getNameDefinition(), b.getAstNode());
+    assertEquals(astOptionalRef.getNameSymbol(), b);
 
-    astOptionalRef.setNameOpt(Optional.ofNullable("C"));
+    astOptionalRef.setName("C");
     assertTrue(astOptionalRef.isPresentNameSymbol());
     assertTrue(astOptionalRef.isPresentNameDefinition());
-    assertEquals(astOptionalRef.getNameSymbolOpt().get(), c);
-    assertEquals(astOptionalRef.getNameDefinitionOpt(), c.getAstNode());
+    assertEquals(astOptionalRef.getNameSymbol(), c);
+    assertEquals(astOptionalRef.getNameDefinition(), c.getAstNode());
 
     astOptionalRef.setNameAbsent();
     assertFalse(astOptionalRef.isPresentNameSymbol());
@@ -191,27 +189,27 @@ public class ReferenceTest {
     assertTrue(astListRef.getNamesDefinition(0).isPresent());
     assertTrue(astListRef.getNamesDefinition(1).isPresent());
     assertTrue(astListRef.getNamesDefinition(2).isPresent());
-    assertEquals(astListRef.getNamesDefinition(0), a.getAstNode());
-    assertEquals(astListRef.getNamesDefinition(1), b.getAstNode());
-    assertEquals(astListRef.getNamesDefinition(2), c.getAstNode());
+    assertEquals(astListRef.getNamesDefinition(0).get(), a.getAstNode());
+    assertEquals(astListRef.getNamesDefinition(1).get(), b.getAstNode());
+    assertEquals(astListRef.getNamesDefinition(2).get(), c.getAstNode());
 
 
-    assertTrue(astListRef.containsNamesDefinition(a.getAstNode()));
-    assertTrue(astListRef.containsNamesDefinition(b.getAstNode()));
-    assertTrue(astListRef.containsNamesDefinition(c.getAstNode()));
+    assertTrue(astListRef.containsNamesDefinition(Optional.ofNullable(a.getAstNode())));
+    assertTrue(astListRef.containsNamesDefinition(Optional.ofNullable(b.getAstNode())));
+    assertTrue(astListRef.containsNamesDefinition(Optional.ofNullable(c.getAstNode())));
 
 
     astListRef.setName(0, "C");
-    assertEquals(astListRef.getNamesDefinition(0), c.getAstNode());
+    assertEquals(astListRef.getNamesDefinition(0), Optional.ofNullable(c.getAstNode()));
     assertEquals(astListRef.sizeNamesDefinition(), 3);
 
     astListRef.addName("A");
     assertEquals(astListRef.sizeNamesDefinition(), 4);
     List<Optional<ASTTest>> testList = new ArrayList<>();
-    testList.add(c.getAstNode());
-    testList.add(b.getAstNode());
-    testList.add(c.getAstNode());
-    testList.add(a.getAstNode());
+    testList.add(Optional.ofNullable(c.getAstNode()));
+    testList.add(Optional.ofNullable(b.getAstNode()));
+    testList.add(Optional.ofNullable(c.getAstNode()));
+    testList.add(Optional.ofNullable(a.getAstNode()));
     assertEquals(astListRef.getNamesDefinitionList(), testList);
     assertEquals(astListRef.toArrayNamesDefinition(), testList.toArray());
   }
@@ -239,7 +237,7 @@ public class ReferenceTest {
 
     assertEquals(astListRef.getName(0), "A");
     assertEquals(astListRef.getNamesSymbol(0).get(), a);
-    assertEquals(astListRef.getNamesDefinition(0), a.getAstNode());
+    assertEquals(astListRef.getNamesDefinition(0).get(), a.getAstNode());
   }
 
   @Test
@@ -291,13 +289,13 @@ public class ReferenceTest {
 
   @Test
   public void testFactoryMandatory() {
-    ASTReferenceToTest astReferenceToTest = ReferenceNodeFactory.createASTReferenceToTest("B");
+    ASTReferenceToTest astReferenceToTest = ReferenceMill.referenceToTestBuilder().setName("B").build();
     assertEquals(astReferenceToTest.getName(), "B");
   }
 
   @Test
   public void testFactoryOptional() {
-    ASTOptionalRef astOptionalRef = ReferenceNodeFactory.createASTOptionalRef(Optional.of("C"));
+    ASTOptionalRef astOptionalRef = ReferenceMill.optionalRefBuilder().setName("C").build();
     assertEquals(astOptionalRef.getName(), "C");
   }
 
@@ -307,7 +305,7 @@ public class ReferenceTest {
     names.add("C");
     names.add("B");
     names.add("A");
-    ASTListRef astListRef = ReferenceNodeFactory.createASTListRef(names);
+    ASTListRef astListRef = ReferenceMill.listRefBuilder().setNameList(names).build();
     assertFalse(astListRef.isEmptyNames());
     assertEquals(astListRef.getName(0), "C");
     assertEquals(astListRef.getName(1), "B");

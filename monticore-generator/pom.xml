@@ -1,3 +1,4 @@
+<!-- (c) https://github.com/MontiCore/monticore -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -7,7 +8,7 @@
   <parent>
     <groupId>de.monticore</groupId>
     <artifactId>monticore</artifactId>
-    <version>5.2.0</version>
+    <version>6.0.0</version>
   </parent>
 
   <artifactId>monticore-generator</artifactId>
@@ -21,13 +22,11 @@
     <dependency>
       <groupId>de.monticore</groupId>
       <artifactId>monticore-runtime</artifactId>
-      <version>${monticore.plugin}</version>
     </dependency>
 
     <dependency>
       <groupId>de.monticore</groupId>
       <artifactId>monticore-emf-runtime</artifactId>
-      <version>${monticore.plugin}</version>
     </dependency>
 
     <dependency>
@@ -113,6 +112,18 @@
       <artifactId>mockito-core</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.javaparser</groupId>
+      <artifactId>javaparser-symbol-solver-core</artifactId>
+      <version>3.14.11</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -120,6 +131,7 @@
       <plugin>
         <groupId>de.monticore.mojo</groupId>
         <artifactId>monticore-maven-plugin</artifactId>
+        <version>${last.mc.release}</version>
         <executions>
           <execution>
             <goals>

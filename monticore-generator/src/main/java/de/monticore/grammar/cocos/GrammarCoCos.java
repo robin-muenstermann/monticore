@@ -27,6 +27,7 @@ public class GrammarCoCos {
     checker.addCoCo(new AbstractNTWithoutExtensionOnlyInComponentGrammar());
     checker.addCoCo(new ProdAndExtendedProdUseSameAttrNameForDiffNTs());
     checker.addCoCo(new GrammarNameUpperCase());
+    checker.addCoCo(new GrammarExtensionOnce());
     checker.addCoCo(new AbstractNTNotExtendInterfaceOrExternalNTs());
     checker.addCoCo(new AbstractNTOnlyExtendOrAstextendNTOrClass());
     checker.addCoCo(new AbstractNTOnlyExtendsOneNTOrClass());
@@ -46,14 +47,20 @@ public class GrammarCoCos {
     checker.addCoCo(new GrammarInheritanceCycle());
     checker.addCoCo(new LeftRecursiveRulesInBlock());
     checker.addCoCo(new DuplicatedSymbolDefinitionInProd());
-    // checker.addCoCo(new SymbolWithoutName());
     checker.addCoCo(new SubrulesUseInterfaceNTs());
     checker.addCoCo(new ReferenceSymbolSameAttribute());
     checker.addCoCo(new ReferenceSymbolNotName());
     checker.addCoCo(new ReferencedSymbolExists());
     checker.addCoCo(new ConservativeExtensionCheck());
     checker.addCoCo(new NoTokenDefined());
-
+    checker.addCoCo(new InheritedSymbolProperty());
+    checker.addCoCo(new InheritedScopeProperty());
+    checker.addCoCo(new SymbolRuleWithoutSymbolRef());
+    checker.addCoCo(new NoNestedGenericsInAdditionalAttributes());
+    checker.addCoCo(new NoMultipleSymbolRule());
+    checker.addCoCo(new SymbolProdOverwrittenBySymbol());
+    checker.addCoCo(new ScopeProdOverwrittenByScope());
+    checker.addCoCo(new UniqueProdNameInGrammar());
     // checker.addCoCo(new NoNTInheritanceCycle());
 
     return checker;

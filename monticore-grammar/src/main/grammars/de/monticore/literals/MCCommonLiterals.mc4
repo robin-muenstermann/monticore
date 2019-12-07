@@ -1,6 +1,8 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.literals;
 
+/* Beta-version: This is intended to become a MontiCore stable grammar. */
+
 /**
  * This grammar defines Java compliant literals. The scope of this grammar is to
  * ease the reuse of literals structures in Java-like sublanguages, e.g., by 
@@ -8,8 +10,8 @@ package de.monticore.literals;
  * The grammar contains literals from Java, e.g., Boolean, Char, String, ....
 */
 
-component grammar MCCommonLiterals extends de.monticore.literals.MCLiteralsBasis {
-
+component grammar MCCommonLiterals extends de.monticore.MCBasics,
+				           de.monticore.literals.MCLiteralsBasis {
 
 
   /*========================================================================*/
@@ -157,10 +159,12 @@ component grammar MCCommonLiterals extends de.monticore.literals.MCLiteralsBasis
 
   // §3.10.6 Escape Sequences for Character and String Literals
   fragment token EscapeSequence
-    = '\\' ('b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\') | OctalEscape | UnicodeEscape;
+    = '\\' ('b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\') 
+      | OctalEscape | UnicodeEscape;
 
   fragment token OctalEscape
-    = '\\' OctalDigit | '\\' OctalDigit OctalDigit | '\\' ZeroToThree OctalDigit OctalDigit;
+    = '\\' OctalDigit | '\\' OctalDigit OctalDigit 
+      | '\\' ZeroToThree OctalDigit OctalDigit;
 
   fragment token UnicodeEscape
     = '\\' 'u' HexDigit HexDigit HexDigit HexDigit;
@@ -208,7 +212,7 @@ component grammar MCCommonLiterals extends de.monticore.literals.MCLiteralsBasis
 
   astrule SignedNatLiteral =
     method public String getSource() {
-      return negative?"-":"" + getDigits();
+      return (negative?"-":"") + getDigits();
     }
     method public int getValue() {
       return de.monticore.MCLiteralsDecoder.decodeNat(getSource());
@@ -226,7 +230,7 @@ component grammar MCCommonLiterals extends de.monticore.literals.MCLiteralsBasis
 
   astrule SignedBasicLongLiteral =
     method public String getSource() {
-      return negative?"-":"" + getDigits() + "L";
+      return (negative?"-":"") + getDigits() + "L";
     }
     method public long getValue() {
       return de.monticore.MCLiteralsDecoder.decodeLong(getSource());
@@ -244,7 +248,7 @@ component grammar MCCommonLiterals extends de.monticore.literals.MCLiteralsBasis
 
   astrule SignedBasicFloatLiteral =
     method public String getSource() {
-      return  isNegative()?"-":"" + getPre() + "." + getPost() + "F";
+      return  (isNegative()?"-":"") + getPre() + "." + getPost() + "F";
     }
     method public float getValue() {
       return de.monticore.MCLiteralsDecoder.decodeFloat(getSource());
@@ -253,7 +257,7 @@ component grammar MCCommonLiterals extends de.monticore.literals.MCLiteralsBasis
 
   astrule BasicDoubleLiteral =
     method public String getSource() {
-      return getPre() + "." + getPost() + "D";
+      return getPre() + "." + getPost();
     }
     method public double getValue() {
       return de.monticore.MCLiteralsDecoder.decodeDouble(getSource());
@@ -262,7 +266,7 @@ component grammar MCCommonLiterals extends de.monticore.literals.MCLiteralsBasis
 
   astrule SignedBasicDoubleLiteral =
     method public String getSource() {
-      return isNegative()?"-":"" + getPre() + "." + getPost() + "D";
+      return (isNegative()?"-":"") + getPre() + "." + getPost();
     }
     method public double getValue() {
       return de.monticore.MCLiteralsDecoder.decodeDouble(getSource());

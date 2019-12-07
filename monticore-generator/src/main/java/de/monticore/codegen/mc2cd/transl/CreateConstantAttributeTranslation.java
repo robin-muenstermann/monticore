@@ -10,10 +10,10 @@ import de.monticore.codegen.mc2cd.MCGrammarSymbolTableHelper;
 import de.monticore.grammar.grammar._ast.ASTClassProd;
 import de.monticore.grammar.grammar._ast.ASTConstantGroup;
 import de.monticore.grammar.grammar._ast.ASTMCGrammar;
+import de.monticore.grammar.grammar._ast.GrammarMill;
 import de.monticore.grammar.grammar._symboltable.ProdSymbol;
 import de.monticore.grammar.grammar._symboltable.RuleComponentSymbol;
 import de.monticore.types.mcbasictypes._ast.ASTConstantsMCBasicTypes;
-import de.monticore.types.mcbasictypes._ast.MCBasicTypesNodeFactory;
 import de.monticore.utils.Link;
 import de.se_rwth.commons.logging.Log;
 
@@ -54,16 +54,16 @@ public class CreateConstantAttributeTranslation implements
     
     ProdSymbol prodSymbol = typeProd.get();
     for (RuleComponentSymbol prodComponent : prodSymbol.getProdComponents()) {
-      if (prodComponent.isConstantGroup() && prodComponent.getAstNode().isPresent()
-          && prodComponent.getAstNode().get() instanceof ASTConstantGroup) {
+      if (prodComponent.isIsConstantGroup() && prodComponent.isPresentAstNode()
+          && prodComponent.getAstNode() instanceof ASTConstantGroup) {
         boolean iterated = MCGrammarSymbolTableHelper.isConstGroupIterated(prodComponent);
         ASTCDAttribute cdAttribute = CD4AnalysisNodeFactory
             .createASTCDAttribute();
         cdAttribute
             .setName(MCGrammarSymbolTableHelper.getConstantName(prodComponent).orElse(""));
         int constantType = iterated ? ASTConstantsMCBasicTypes.INT : ASTConstantsMCBasicTypes.BOOLEAN;
-        cdAttribute.setMCType(MCBasicTypesNodeFactory
-            .createASTMCPrimitiveType(constantType));
+        cdAttribute.setMCType(
+                GrammarMill.mCPrimitiveTypeBuilder().setPrimitive(constantType).build());
         link.target().getCDAttributeList().add(cdAttribute);
       }
     }

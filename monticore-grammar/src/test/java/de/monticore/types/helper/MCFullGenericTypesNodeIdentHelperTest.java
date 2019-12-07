@@ -1,32 +1,35 @@
-/* (c) https://github.com/MontiCore/monticore */
+// (c) https://github.com/MontiCore/monticore
+
 package de.monticore.types.helper;
 
 import de.monticore.types.MCFullGenericTypesNodeIdentHelper;
 import de.monticore.types.mcbasictypes._ast.ASTMCType;
-import de.monticore.types.mccollectiontypestest._parser.MCCollectionTypesTestParser;
-import de.monticore.types.mcfullgenerictypes._ast.ASTMCTypeParameters;
-import de.monticore.types.mcfullgenerictypes._ast.ASTMCWildcardType;
+import de.monticore.types.mcfullgenerictypes._ast.ASTMCArrayType;
+import de.monticore.types.mcfullgenerictypes._ast.ASTMCMultipleGenericType;
 import de.monticore.types.mcfullgenerictypestest._parser.MCFullGenericTypesTestParser;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MCFullGenericTypesNodeIdentHelperTest {
+
   @Test
   public void testGetIdent() throws IOException {
-    MCFullGenericTypesTestParser parser = new MCFullGenericTypesTestParser();
-    Optional<ASTMCTypeParameters> astmcTypeParameters = parser.parse_StringMCTypeParameters("<a extends b&c&d, e extends f&g>");
-    Optional<ASTMCTypeParameters> astmcTypeParameters1 = parser.parse_StringMCTypeParameters("<a extends b&c&d>");
+    MCFullGenericTypesTestParser p = new MCFullGenericTypesTestParser();
+    MCFullGenericTypesNodeIdentHelper identHelper = new MCFullGenericTypesNodeIdentHelper();
+    Optional<ASTMCMultipleGenericType> astmcMultipleGenericType = p.parse_StringMCMultipleGenericType("a.b.D<C>.d.E<int>");
+    Optional<ASTMCType> astmcArrayType = p.parse_StringMCType("A[]");
 
-    assertFalse(parser.hasErrors());
-    assertTrue(astmcTypeParameters.isPresent());
-    assertTrue(astmcTypeParameters1.isPresent());
+    assertTrue(astmcMultipleGenericType.isPresent());
+    assertTrue(astmcArrayType.isPresent());
+    assertTrue(astmcArrayType.get() instanceof ASTMCArrayType);
 
-    MCFullGenericTypesNodeIdentHelper helper = new MCFullGenericTypesNodeIdentHelper();
-    assertEquals("@a..!MCTypeParameters", helper.getIdent(astmcTypeParameters.get()));
-    assertEquals("@a!MCTypeParameters", helper.getIdent(astmcTypeParameters1.get()));
+    assertEquals("@a.b.D.d.E!MCMultipleGenericType", identHelper.getIdent(astmcMultipleGenericType.get()));
+    assertEquals("@A!MCArrayType", identHelper.getIdent((ASTMCArrayType)astmcArrayType.get()));
   }
+
 }

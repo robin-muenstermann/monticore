@@ -1,7 +1,13 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java.data;
 
-import de.monticore.cd.cd4analysis._ast.*;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
+import de.monticore.cd.cd4analysis._ast.ASTCDAttribute;
+import de.monticore.cd.cd4analysis._ast.ASTCDClass;
+import de.monticore.cd.cd4analysis._ast.ASTCDCompilationUnit;
+import de.monticore.cd.cd4analysis._ast.CD4AnalysisMill;
 import de.monticore.cd.prettyprint.CD4CodePrinter;
 import de.monticore.codegen.cd2java.AbstractService;
 import de.monticore.codegen.cd2java.CoreTemplates;
@@ -16,11 +22,13 @@ import de.se_rwth.commons.logging.LogStub;
 import org.junit.Before;
 import org.junit.Test;
 
-import static de.monticore.codegen.cd2java.DecoratorAssert.*;
+import static de.monticore.cd.facade.CDModifier.PROTECTED;
+import static de.monticore.codegen.cd2java.DecoratorAssert.assertBoolean;
+import static de.monticore.codegen.cd2java.DecoratorAssert.assertDeepEquals;
 import static de.monticore.codegen.cd2java.DecoratorTestUtil.getAttributeBy;
 import static de.monticore.codegen.cd2java.DecoratorTestUtil.getClassBy;
-import static de.monticore.codegen.cd2java.factories.CDModifier.PROTECTED;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FullConstructorTest extends DecoratorTestCase {
 
@@ -78,26 +86,6 @@ public class FullConstructorTest extends DecoratorTestCase {
   }
 
   @Test
-  public void testFullConstructorSubB() {
-    ASTCDConstructor fullConstructor = subBClass.getCDConstructor(1);
-    assertDeepEquals(PROTECTED, fullConstructor.getModifier());
-    assertFalse(fullConstructor.isEmptyCDParameters());
-    assertEquals(3, fullConstructor.sizeCDParameters());
-
-    ASTCDParameter parameter = fullConstructor.getCDParameter(0);
-    assertInt(parameter.getMCType());
-    assertEquals("i", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(1);
-    assertDeepEquals(String.class, parameter.getMCType());
-    assertEquals("s", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(2);
-    assertBoolean(parameter.getMCType());
-    assertEquals("b", parameter.getName());
-  }
-
-  @Test
   public void testAttributesCountSubA() {
     assertEquals(1, subAClass.getCDAttributeList().size());
   }
@@ -109,7 +97,6 @@ public class FullConstructorTest extends DecoratorTestCase {
     assertDeepEquals("char", attribute.getMCType());
   }
 
-
   @Test
   public void testNoInheritedAttributeSubA() {
     //test that inherited attributes are not contained in new class
@@ -119,37 +106,16 @@ public class FullConstructorTest extends DecoratorTestCase {
   }
 
   @Test
-  public void testFullConstructorSubA() {
-    //test for inheritance over more layers
-    ASTCDConstructor fullConstructor = subAClass.getCDConstructor(1);
-    assertDeepEquals(PROTECTED, fullConstructor.getModifier());
-    assertFalse(fullConstructor.isEmptyCDParameters());
-    assertEquals(4, fullConstructor.sizeCDParameters());
-
-    ASTCDParameter parameter = fullConstructor.getCDParameter(0);
-    assertInt(parameter.getMCType());
-    assertEquals("i", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(1);
-    assertBoolean(parameter.getMCType());
-    assertEquals("b", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(2);
-    assertDeepEquals(String.class, parameter.getMCType());
-    assertEquals("s", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(3);
-    assertDeepEquals("char", parameter.getMCType());
-    assertEquals("c", parameter.getName());
-  }
-
-  @Test
   public void testGeneratedCodeSubA() {
     GeneratorSetup generatorSetup = new GeneratorSetup();
     generatorSetup.setGlex(glex);
     GeneratorEngine generatorEngine = new GeneratorEngine(generatorSetup);
     StringBuilder sb = generatorEngine.generate(CoreTemplates.CLASS, subAClass, subAClass);
-    // TODO Check System.out.println(sb.toString());
+    // test parsing
+    ParserConfiguration configuration = new ParserConfiguration();
+    JavaParser parser = new JavaParser(configuration);
+    ParseResult parseResult = parser.parse(sb.toString());
+    assertTrue(parseResult.isSuccessful());
   }
 
 
@@ -159,6 +125,10 @@ public class FullConstructorTest extends DecoratorTestCase {
     generatorSetup.setGlex(glex);
     GeneratorEngine generatorEngine = new GeneratorEngine(generatorSetup);
     StringBuilder sb = generatorEngine.generate(CoreTemplates.CLASS, subBClass, subBClass);
-    // TODO Check System.out.println(sb.toString());
+    // test parsing
+    ParserConfiguration configuration = new ParserConfiguration();
+    JavaParser parser = new JavaParser(configuration);
+    ParseResult parseResult = parser.parse(sb.toString());
+    assertTrue(parseResult.isSuccessful());
   }
 }

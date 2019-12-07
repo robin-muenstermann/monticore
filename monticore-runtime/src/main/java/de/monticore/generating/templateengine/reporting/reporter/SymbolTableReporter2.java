@@ -2,12 +2,6 @@
 
 package de.monticore.generating.templateengine.reporting.reporter;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Collectors;
-
 import de.monticore.ast.ASTNode;
 import de.monticore.generating.templateengine.reporting.commons.AReporter;
 import de.monticore.generating.templateengine.reporting.commons.ReportingConstants;
@@ -19,6 +13,12 @@ import de.monticore.symboltable.ISymbol;
 import de.monticore.symboltable.modifiers.AccessModifier;
 import de.monticore.symboltable.modifiers.BasicAccessModifier;
 import de.se_rwth.commons.Names;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class SymbolTableReporter2 extends AReporter {
   
@@ -79,8 +79,8 @@ public class SymbolTableReporter2 extends AReporter {
     printer.indent();
     reportAllFields(scope.getClass(), printer);
     
-    if (scope.getName().isPresent()) {
-      printer.println("name = \"" + scope.getName().get() + "\";");
+    if (scope.isPresentName()) {
+      printer.println("name = \"" + scope.getName() + "\";");
     }
     else if (printEmptyOptional) {
       printer.println("name = absent;");
@@ -106,30 +106,30 @@ public class SymbolTableReporter2 extends AReporter {
     // printer.println("packageName = \"" + artifactScope.getPackageName() + "\";");
     // }
     
-    printer.println("isShadowingScope = " + scope.isShadowingScope() + ";");
-    printer.println("exportsSymbols = " + scope.exportsSymbols() + ";");
+    printer.println("isShadowingScope = " + scope.isShadowing() + ";");
+    printer.println("exportsSymbols = " + scope.isExportingSymbols() + ";");
     
-    if (scope.getAstNode().isPresent()) {
+    if (scope.isPresentAstNode()) {
       printer.print("astNode = ");
-      printer.print(repository.getASTNodeNameFormatted(scope.getAstNode().get()));
+      printer.print(repository.getASTNodeNameFormatted(scope.getAstNode()));
       printer.println(";");
     }
     else if (printEmptyOptional) {
       printer.println("astNode = absent;");
     }
     
-    if (scope.getSpanningSymbol().isPresent()) {
+    if (scope.isPresentSpanningSymbol()) {
       printer.print("spanningSymbol = ");
-      reportSymbol(scope.getSpanningSymbol().get(), printer);
+      reportSymbol(scope.getSpanningSymbol(), printer);
       printer.println(";");
     }
     else if (printEmptyOptional) {
       printer.println("spanningSymbol = absent;");
     }
-    
-    if (scope.getEnclosingScope().isPresent()) {
+
+    if (scope.getEnclosingScope() != null) {
       printer.print("enclosingScope = ");
-      printer.print(repository.getScopeNameFormatted(scope.getEnclosingScope().get()));
+      printer.print(repository.getScopeNameFormatted(scope.getEnclosingScope()));
       printer.println(";");
     }
     else if (printEmptyOptional) {
@@ -229,9 +229,9 @@ public class SymbolTableReporter2 extends AReporter {
     reportAllFields(sym.getClass(), printer);
     printer.println("name = \"" + sym.getName() + "\";");
     printer.println("kind = \"" + sym.getClass().getName() + "\";");
-    if (sym.getAstNode().isPresent()) {
+    if (sym.isPresentAstNode()) {
       printer.print("astNode = ");
-      printer.print(repository.getASTNodeNameFormatted(sym.getAstNode().get()));
+      printer.print(repository.getASTNodeNameFormatted(sym.getAstNode()));
       printer.println(";");
     }
     else if (printEmptyOptional) {

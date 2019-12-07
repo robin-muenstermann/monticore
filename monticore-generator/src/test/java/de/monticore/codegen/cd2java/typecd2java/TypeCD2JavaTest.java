@@ -2,8 +2,6 @@
 package de.monticore.codegen.cd2java.typecd2java;
 
 import de.monticore.MontiCoreScript;
-import de.monticore.cd.cd4analysis._ast.ASTCDAttribute;
-import de.monticore.cd.cd4analysis._ast.ASTCDClass;
 import de.monticore.cd.cd4analysis._ast.ASTCDCompilationUnit;
 import de.monticore.cd.cd4analysis._symboltable.CD4AnalysisGlobalScope;
 import de.monticore.cd.cd4analysis._symboltable.CD4AnalysisLanguage;
@@ -14,7 +12,6 @@ import de.monticore.grammar.grammar_withconcepts._symboltable.Grammar_WithConcep
 import de.monticore.io.paths.ModelPath;
 import de.monticore.types.mcbasictypes._ast.ASTMCQualifiedType;
 import de.monticore.types.mccollectiontypes._ast.ASTMCGenericType;
-import de.monticore.types.mccollectiontypes._ast.ASTMCListType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,22 +43,12 @@ public class TypeCD2JavaTest {
     MontiCoreScript script = new MontiCoreScript();
     script.createSymbolsFromAST(grammar_withConceptsGlobalScope, grammar.get());
     cdCompilationUnit = script.deriveCD(grammar.get(), new GlobalExtensionManagement(),
-        cd4AnalysisGlobalScope,grammar_withConceptsGlobalScope);
+        cd4AnalysisGlobalScope);
 
     cdCompilationUnit.setEnclosingScope(cd4AnalysisGlobalScope);
     //make types java compatible
     TypeCD2JavaDecorator decorator = new TypeCD2JavaDecorator(cd4AnalysisGlobalScope);
     decorator.decorate(cdCompilationUnit);
-  }
-
-  @Test
-  public void testTypeNamesSplittet() {
-    //that names = ["java", "util", "List"] and names != ["java.util.List"]
-    for (ASTCDClass astcdClass : cdCompilationUnit.getCDDefinition().getCDClassList()) {
-      for (ASTCDAttribute astcdAttribute : astcdClass.getCDAttributeList()) {
-        assertTrue(astcdAttribute.getMCType().getNameList().stream().noneMatch((s) -> s.contains(".")));
-      }
-    }
   }
 
   @Test

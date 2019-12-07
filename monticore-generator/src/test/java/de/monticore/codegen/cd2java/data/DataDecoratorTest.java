@@ -1,6 +1,9 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.codegen.cd2java.data;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
 import de.monticore.cd.cd4analysis._ast.*;
 import de.monticore.cd.prettyprint.CD4CodePrinter;
 import de.monticore.codegen.cd2java.AbstractService;
@@ -18,14 +21,14 @@ import org.junit.Test;
 
 import static de.monticore.codegen.cd2java.DecoratorAssert.*;
 import static de.monticore.codegen.cd2java.DecoratorTestUtil.*;
-import static de.monticore.codegen.cd2java.factories.CDModifier.PROTECTED;
-import static de.monticore.codegen.cd2java.factories.CDModifier.PUBLIC;
+import static de.monticore.cd.facade.CDModifier.PROTECTED;
+import static de.monticore.cd.facade.CDModifier.PUBLIC;
 import static org.junit.Assert.*;
 
 public class DataDecoratorTest extends DecoratorTestCase {
-  
+
   private GlobalExtensionManagement glex = new GlobalExtensionManagement();
-  
+
   private ASTCDClass dataClass;
 
   @Before
@@ -95,7 +98,7 @@ public class DataDecoratorTest extends DecoratorTestCase {
   @Test
   public void testConstructors() {
     assertFalse(dataClass.isEmptyCDConstructors());
-    assertEquals(2, dataClass.sizeCDConstructors());
+    assertEquals(1, dataClass.sizeCDConstructors());
   }
 
   @Test
@@ -106,37 +109,9 @@ public class DataDecoratorTest extends DecoratorTestCase {
   }
 
   @Test
-  public void testFullConstructor() {
-    ASTCDConstructor fullConstructor = dataClass.getCDConstructor(1);
-    assertDeepEquals(PROTECTED, fullConstructor.getModifier());
-    assertFalse(fullConstructor.isEmptyCDParameters());
-    assertEquals(5, fullConstructor.sizeCDParameters());
-
-    ASTCDParameter parameter = fullConstructor.getCDParameter(0);
-    assertInt(parameter.getMCType());
-    assertEquals("i", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(1);
-    assertDeepEquals(String.class, parameter.getMCType());
-    assertEquals("s", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(2);
-    assertOptionalOf(String.class, parameter.getMCType());
-    assertEquals("opt", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(3);
-    assertListOf(String.class, parameter.getMCType());
-    assertEquals("list", parameter.getName());
-
-    parameter = fullConstructor.getCDParameter(4);
-    assertDeepEquals("de.monticore.codegen.data.ASTB", parameter.getMCType());
-    assertEquals("b", parameter.getName());
-  }
-
-  @Test
   public void testMethods() {
     assertFalse(dataClass.isEmptyCDMethods());
-    assertEquals(54, dataClass.sizeCDMethods());
+    assertEquals(52, dataClass.sizeCDMethods());
   }
 
   @Test
@@ -267,7 +242,11 @@ public class DataDecoratorTest extends DecoratorTestCase {
     generatorSetup.setGlex(glex);
     GeneratorEngine generatorEngine = new GeneratorEngine(generatorSetup);
     StringBuilder sb = generatorEngine.generate(CoreTemplates.CLASS, dataClass, dataClass);
-    // TODO Check System.out.println(sb.toString());
+    // test parsing
+    ParserConfiguration configuration = new ParserConfiguration();
+    JavaParser parser = new JavaParser(configuration);
+    ParseResult parseResult = parser.parse(sb.toString());
+    assertTrue(parseResult.isSuccessful());
   }
 
 
@@ -289,6 +268,10 @@ public class DataDecoratorTest extends DecoratorTestCase {
     generatorSetup.setGlex(glex);
     GeneratorEngine generatorEngine = new GeneratorEngine(generatorSetup);
     StringBuilder sb = generatorEngine.generate(CoreTemplates.CLASS, clazz, clazz);
-    // TODO Check System.out.println(sb.toString());
+    // test parsing
+    ParserConfiguration configuration = new ParserConfiguration();
+    JavaParser parser = new JavaParser(configuration);
+    ParseResult parseResult = parser.parse(sb.toString());
+    assertTrue(parseResult.isSuccessful());
   }
 }

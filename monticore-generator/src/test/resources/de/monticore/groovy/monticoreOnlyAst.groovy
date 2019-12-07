@@ -24,7 +24,7 @@ while (grammarIterator.hasNext()) {
     astGrammar = createSymbolsFromAST(mcScope, astGrammar)
 
     // Transform AST-Grammar -> AST-CD
-    astClassDiagramWithST = deriveCD(astGrammar, glex, cd4AScope, mcScope)
+    astClassDiagramWithST = deriveCD(astGrammar, glex, cd4AScope)
 
     // Writes Class Diagram AST to the CD-file (*.cd)
     storeInCdFile(astClassDiagramWithST, out)
@@ -33,11 +33,15 @@ while (grammarIterator.hasNext()) {
 
     // M7: decorate Class Diagram AST
 
-    generateVisitors(glex, cd4AScope, astClassDiagramWithST, out, handcodedPath)
-    generateCocos(glex, cd4AScope, astClassDiagramWithST, out)
-    generateODs(glex, cd4AScope, mcScope, astClassDiagramWithST, out)
+    decoratedVisitorCD = decorateForVisitorPackage(glex, cdScope, astClassDiagram, handcodedPath)
+    generateFromCD(glex, astClassDiagram, decoratedVisitorCD, out, handcodedPath)
 
-    decoratedASTClassDiagramm = decorateForASTPackage(glex, astClassDiagramWithST, modelPath, handcodedPath)
+    decoratedCoCoCD = decorateForCoCoPackage(glex, cdScope, astClassDiagram, handcodedPath)
+    generateFromCD(glex, astClassDiagram, decoratedCoCoCD, out, handcodedPath)
+
+    generateODs(glex, cd4AScope, mcScope, astClassDiagramWithST, astGrammar, out)
+
+    decoratedASTClassDiagramm = decorateForASTPackage(glex,cd4AScope, astClassDiagramWithST, handcodedPath)
     generateFromCD(glex,astClassDiagramWithST, decoratedASTClassDiagramm, out, handcodedPath)
 
   }

@@ -4,15 +4,14 @@ package de.monticore.statements.prettyprint;
 
 import de.monticore.prettyprint.CommentPrettyPrinter;
 import de.monticore.prettyprint.IndentPrinter;
+import de.monticore.prettyprint.MCBasicsPrettyPrinter;
 import de.monticore.statements.mclowlevelstatements._ast.ASTBreakStatement;
 import de.monticore.statements.mclowlevelstatements._ast.ASTContinueStatement;
 import de.monticore.statements.mclowlevelstatements._ast.ASTLabeledStatement;
 import de.monticore.statements.mclowlevelstatements._ast.ASTMCLowLevelStatementsNode;
 import de.monticore.statements.mclowlevelstatements._visitor.MCLowLevelStatementsVisitor;
 
-public class MCLowLevelStatementsPrettyPrinter extends MCCommonStatementsPrettyPrinter implements
-        MCLowLevelStatementsVisitor {
-
+public class MCLowLevelStatementsPrettyPrinter extends MCBasicsPrettyPrinter implements MCLowLevelStatementsVisitor {
 
   private MCLowLevelStatementsVisitor realThis = this;
 
@@ -20,11 +19,15 @@ public class MCLowLevelStatementsPrettyPrinter extends MCCommonStatementsPrettyP
     super(out);
   }
 
+  public IndentPrinter getPrinter() {
+    return this.printer;
+  }
+
   @Override
   public void handle(ASTLabeledStatement a) {
     CommentPrettyPrinter.printPreComments(a, getPrinter());
-    printNode(a.getLabel());
-    getPrinter().print(": ");
+    getPrinter().print(a.getLabel());
+    getPrinter().print(" : ");
     a.getMCStatement().accept(getRealThis());
     CommentPrettyPrinter.printPostComments(a, getPrinter());
   }
@@ -32,9 +35,9 @@ public class MCLowLevelStatementsPrettyPrinter extends MCCommonStatementsPrettyP
   @Override
   public void handle(ASTBreakStatement a) {
     CommentPrettyPrinter.printPreComments(a, getPrinter());
-    getPrinter().print("break");
+    getPrinter().print("break ");
     if (a.isPresentLabel()) {
-      printNode(a.getLabel());
+      getPrinter().print(a.getLabel());
     }
     getPrinter().println(";");
     CommentPrettyPrinter.printPostComments(a, getPrinter());
@@ -43,9 +46,9 @@ public class MCLowLevelStatementsPrettyPrinter extends MCCommonStatementsPrettyP
   @Override
   public void handle(ASTContinueStatement a) {
     CommentPrettyPrinter.printPreComments(a, getPrinter());
-    getPrinter().print("continue");
+    getPrinter().print("continue ");
     if (a.isPresentLabel()) {
-      printNode(a.getLabel());
+      getPrinter().print(a.getLabel());
     }
     getPrinter().println(";");
     CommentPrettyPrinter.printPostComments(a, getPrinter());
@@ -72,5 +75,5 @@ public class MCLowLevelStatementsPrettyPrinter extends MCCommonStatementsPrettyP
   public MCLowLevelStatementsVisitor getRealThis() {
     return realThis;
   }
-  
+
 }

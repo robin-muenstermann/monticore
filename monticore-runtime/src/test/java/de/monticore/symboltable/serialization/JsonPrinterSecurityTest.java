@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import de.monticore.symboltable.serialization.json.JsonArray;
@@ -16,11 +17,14 @@ import de.monticore.symboltable.serialization.json.JsonObject;
  * This test checks whether injection of objects into serialization and deserialization is avoided
  * correctly.
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since TODO: add version number
  */
 public class JsonPrinterSecurityTest {
+  
+  
+  @Before
+  public void disableIndentation() {
+    JsonPrinter.enableIndentation();
+  }
   
   @Test
   public void test() {
@@ -40,7 +44,6 @@ public class JsonPrinterSecurityTest {
     
     // use JSONPrinter to produce json stirng
     String s = printFoo(bar);
-    
     // use JsonParser to produce JsonObject form seriaiized stnirg
     JsonObject o = JsonParser.parseJsonObject(s);
     
@@ -53,24 +56,24 @@ public class JsonPrinterSecurityTest {
     
     JsonObject b11 = getChildren(b1).get(0).getAsJsonObject();
     assertEquals("Bar1.1", getName(b11));
-    assertEquals(false, b11.containsKey("children"));
+    assertEquals(false, b11.hasMember("children"));
     
     JsonObject b2 = getChildren(o).get(1).getAsJsonObject();
     assertTrue(getName(b2).startsWith("Bar2"));
     // without escaping, Bar2 would contain the injected child Bar2.1
-    assertEquals(false, b2.containsKey("children"));
+    assertEquals(false, b2.hasMember("children"));
   }
   
   protected JsonArray getChildren(JsonObject foo) {
-    assertEquals(true, foo.containsKey("children"));
-    assertEquals(true, foo.get("children").isJsonArray());
-    return foo.get("children").getAsJsonArray();
+    assertEquals(true, foo.hasMember("children"));
+    assertEquals(true, foo.getMember("children").isJsonArray());
+    return foo.getMember("children").getAsJsonArray();
   }
   
   protected String getName(JsonObject foo) {
-    assertEquals(true, foo.containsKey("name"));
-    assertEquals(true, foo.get("name").isJsonString());
-    return foo.get("name").getAsJsonString().getValue();
+    assertEquals(true, foo.hasMember("name"));
+    assertEquals(true, foo.getMember("name").isJsonString());
+    return foo.getMember("name").getAsJsonString().getValue();
   }
   
   protected String printFoo(Foo f) {
@@ -79,7 +82,7 @@ public class JsonPrinterSecurityTest {
     p.member("name", f.name);
     if (!f.children.isEmpty()) {
       p.beginArray("children");
-      f.children.stream().forEach(F -> p.value(printFoo(F)));
+      f.children.stream().forEach(F -> p.valueJson(printFoo(F)));
       p.endArray();
     }
     p.member("name2", f.name);

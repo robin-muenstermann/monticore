@@ -1,14 +1,13 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.symboltable.serialization;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -16,14 +15,17 @@ import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
 import de.se_rwth.commons.logging.LogStub;
 
+import static org.junit.Assert.*;
+
 /**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since TODO: add version number
+ * Tests the JsonPrinter
  */
 public class JsonPrinterTest {
+  
+  @Before
+  public void disableIndentation() {
+    JsonPrinter.disableIndentation();
+  }
   
   @Test
   public void testEscapeSequences() {
@@ -163,6 +165,14 @@ public class JsonPrinterTest {
     // unmute Sytem.err
     System.setErr(_err);
     
+  }
+
+  @Test
+  public void testIsSerializingEmptyLists() {
+    JsonPrinter serializeEmpty = new JsonPrinter(true);
+    JsonPrinter serializeEmptyNot = new JsonPrinter();
+    assertTrue(serializeEmpty.isSerializingEmptyLists());
+    assertFalse(serializeEmptyNot.isSerializingEmptyLists());
   }
   
 }

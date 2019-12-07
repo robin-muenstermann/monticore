@@ -1,31 +1,30 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import de.monticore.cardinality._ast.ASTCardinality;
 import de.monticore.completeness._ast.ASTCompleteness;
-import de.monticore.mcnumbers._ast.ASTDecimal;
-import de.monticore.stringliterals._ast.ASTStringLiteral;
+import de.monticore.literals.mccommonliterals._ast.ASTNatLiteral;
+import de.monticore.literals.mccommonliterals._ast.ASTStringLiteral;
 import de.monticore.testmccommon._parser.TestMCCommonParser;
 import de.monticore.umlmodifier._ast.ASTModifier;
 import de.monticore.umlstereotype._ast.ASTStereoValue;
 import de.monticore.umlstereotype._ast.ASTStereotype;
 import de.se_rwth.commons.logging.Log;
 import de.se_rwth.commons.logging.LogStub;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 public class MCCommonUnitTest {
-    
+  
   // setup the language infrastructure
   TestMCCommonParser parser = new TestMCCommonParser() ;
   
@@ -38,7 +37,7 @@ public class MCCommonUnitTest {
   
 
   @Before
-  public void setUp() { 
+  public void setUp() {
     Log.getFindings().clear();
   }
   
@@ -49,13 +48,13 @@ public class MCCommonUnitTest {
   // --------------------------------------------------------------------
   @Test
   public void testNat1() throws IOException {
-    ASTDecimal ast = parser.parse_StringDecimal( " 9" ).get();
+    ASTNatLiteral ast = parser.parse_StringNatLiteral( " 9" ).get();
     assertEquals("9", ast.getSource());
     assertEquals(9, ast.getValue());
   }
   @Test
   public void testNat4() throws IOException {
-    ASTDecimal ast = parser.parse_StringDecimal( " 42 " ).get();
+    ASTNatLiteral ast = parser.parse_StringNatLiteral( " 42 " ).get();
     assertEquals("42", ast.getSource());
     assertEquals(42, ast.getValue());
   }
@@ -98,9 +97,8 @@ public class MCCommonUnitTest {
   public void testStereoValue() throws IOException {
     ASTStereoValue ast = parser.parse_StringStereoValue( "bla=\"17\"" ).get();
     assertEquals("bla", ast.getName());
-    Optional<ASTStringLiteral> os = ast.getTextOpt();
-    assertEquals(true, os.isPresent());
-    assertEquals("17", os.get().getValue());
+    assertEquals(true, ast.isPresentText());
+    assertEquals("17", ast.getText().getValue());
     assertEquals("17", ast.getValue());
   }
 
@@ -110,8 +108,7 @@ public class MCCommonUnitTest {
   public void testStereoValue2() throws IOException {
     ASTStereoValue ast = parser.parse_StringStereoValue( "cc" ).get();
     assertEquals("cc", ast.getName());
-    Optional<ASTStringLiteral> os = ast.getTextOpt();
-    assertEquals(false, os.isPresent());
+    assertEquals(false, ast.isPresentText());
     assertEquals("", ast.getValue());
   }
 
@@ -146,7 +143,7 @@ public class MCCommonUnitTest {
   @Test
   public void testGetValue() throws IOException {
     ASTStereotype ast = parser.parse_StringStereotype(
-        "<< bla, a1=\"wert1\" >>" ).get(); 
+        "<< bla, a1=\"wert1\" >>" ).get();
     assertEquals("wert1", ast.getValue("a1"));
     try {
       assertEquals("", ast.getValue("foo"));
@@ -159,7 +156,7 @@ public class MCCommonUnitTest {
   @Test
   public void testEnding() throws IOException {
     Optional<ASTStereotype> oast = parser.parse_StringStereotype(
-        "<< bla, a1=\"wert1\" > >" ); 
+        "<< bla, a1=\"wert1\" > >" );
     assertEquals(false, oast.isPresent());
   }
 
@@ -202,7 +199,7 @@ public class MCCommonUnitTest {
   // --------------------------------------------------------------------
   @Test
   public void testIllegalComplete() throws IOException {
-    Optional<ASTCompleteness> ast = 
+    Optional<ASTCompleteness> ast =
     		parser.parse_StringCompleteness( "(...,d)"  );
     assertEquals(false, ast.isPresent());
   }

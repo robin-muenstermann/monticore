@@ -14,37 +14,48 @@ import java.io.StringReader;
  * then be used, e.g., to build Java objects with their builders.
  */
 public class JsonParser {
-  
-  public static JsonElement parseJson(String s) {
+
+  /**
+   * Parses a given String encoded in JSON to a {@link JsonElement}. This method should be used if
+   * the Json type (i.e., Object, Array,...) of the encoded JSON is unclear.
+   *
+   * @param s
+   * @return
+   */
+  public static JsonElement parse(String s) {
     JsonReader reader = new JsonReader(new StringReader(s));
     return parseJson(reader);
   }
-  
+
+  /**
+   * Parses a given String encoded in JSON to a {@link JsonObject}. Parsing of the String fails with
+   * an error if the encoded String cannot be parsed into a Json object.
+   *
+   * @param s
+   * @return
+   */
   public static JsonObject parseJsonObject(String s) {
     JsonReader reader = new JsonReader(new StringReader(s));
     return parseJsonObject(reader);
   }
-  
+
+  /**
+   * Parses a given String encoded in JSON to a {@link JsonArray}. Parsing of the String fails with
+   * an error if the encoded String cannot be parsed into a Json array.
+   *
+   * @param s
+   * @return
+   */
   public static JsonArray parseJsonArray(String s) {
     JsonReader reader = new JsonReader(new StringReader(s));
     return parseJsonArray(reader);
   }
-  
-  @Deprecated
-  public static JsonElement deserializeJson(String s) {
-    return parseJson(s);
-  }
-  
-  @Deprecated
-  public static JsonObject deserializeJsonObject(String s) {
-    return parseJsonObject(s);
-  }
-  
-  @Deprecated
-  public static JsonArray deserializeJsonArray(String s) {
-    return parseJsonArray(s);
-  }
-  
+
+  /**
+   * Parses any JsonElement with the passed JsonReader
+   * @param reader
+   * @return
+   */
   protected static JsonElement parseJson(JsonReader reader) {
     try {
       while (reader.hasNext()) {
@@ -55,33 +66,37 @@ public class JsonParser {
           case BEGIN_OBJECT:
             return parseJsonObject(reader);
           case BOOLEAN:
-            return new JsonBoolean(reader.nextBoolean());
+            return JsonElementFactory.createJsonBoolean(reader.nextBoolean());
           case END_DOCUMENT:
           case NULL:
             reader.nextNull();
-            return new JsonNull();
+            return JsonElementFactory.createJsonNull();
           case NUMBER:
-            return new JsonNumber(reader.nextString());
+            return JsonElementFactory.createJsonNumber(reader.nextString());
           case STRING:
-            return new JsonString(reader.nextString());
+            return JsonElementFactory.createJsonString(reader.nextString());
           case END_ARRAY:
           case END_OBJECT:
           case NAME:
           default:
             Log.error(
-                "Invalid JSON token \"" + token + "\". The serialized object is not well-formed!");
+                "0xA0564 Invalid JSON token \"" + token + "\". The serialized object is not well-formed!");
         }
       }
-      // reader.close();
     }
     catch (IOException e) {
-      e.printStackTrace();
+      Log.error("0xA0565: An error occured while parsing malformed JSON "+wrapExceptionMessage(e));
     }
     return null;
   }
-  
+
+  /**
+   * Parses a Json Object with the passed JsonReader
+   * @param reader
+   * @return
+   */
   protected static JsonObject parseJsonObject(JsonReader reader) {
-    JsonObject result = new JsonObject();
+    JsonObject result = JsonElementFactory.createJsonObject();
     try {
       reader.beginObject();
       while (reader.hasNext()) {
@@ -90,24 +105,37 @@ public class JsonParser {
           case NAME:
             String name = reader.nextName();
             JsonElement value = parseJson(reader);
-            result.put(name, value);
+            result.putMember(name, value);
             break;
+          case BEGIN_ARRAY:
+          case BEGIN_OBJECT:
+          case BOOLEAN:
+          case END_DOCUMENT:
+          case NULL:
+          case NUMBER:
+          case STRING:
+          case END_ARRAY:
+          case END_OBJECT:
           default:
             Log.error(
-                "Invalid JSON token \"" + token + "\". The serialized object is not well-formed!");
+                " 0xA0566 Invalid JSON token \"" + token + "\". The serialized object is not well-formed!");
         }
       }
       reader.endObject();
-      // reader.close();
     }
     catch (IOException e) {
-      e.printStackTrace();
+      Log.error("0xA0567: An error occured while parsing malformed JSON "+wrapExceptionMessage(e));
     }
     return result;
   }
-  
+
+  /**
+   * Parses a Json array by using the passed JsonReader
+   * @param reader
+   * @return
+   */
   protected static JsonArray parseJsonArray(JsonReader reader) {
-    JsonArray result = new JsonArray();
+    JsonArray result = JsonElementFactory.createJsonArray();
     try {
       reader.beginArray();
       while (reader.hasNext()) {
@@ -122,35 +150,64 @@ public class JsonParser {
             result.add(object);
             break;
           case BOOLEAN:
-            JsonBoolean bool = new JsonBoolean(reader.nextBoolean());
+            JsonBoolean bool = JsonElementFactory.createJsonBoolean(reader.nextBoolean());
             result.add(bool);
             break;
           case NUMBER:
-            JsonNumber number = new JsonNumber(reader.nextString());
+            JsonNumber number = JsonElementFactory.createJsonNumber(reader.nextString());
             result.add(number);
             break;
           case STRING:
-            JsonString string = new JsonString(reader.nextString());
+            JsonString string = JsonElementFactory.createJsonString(reader.nextString());
             result.add(string);
             break;
           case NULL:
             reader.nextNull();
-            result.add(new JsonNull());
+            result.add(JsonElementFactory.createJsonNull());
             break;
           case END_DOCUMENT:
           case NAME:
           default:
             Log.error(
-                "Invalid JSON token \"" + token + "\". The serialized object is not well-formed!");
+                "0xA0568 Invalid JSON token \"" + token + "\". The serialized object is not well-formed!");
         }
       }
       reader.endArray();
-      // reader.close();
     }
     catch (IOException e) {
-      e.printStackTrace();
+      Log.error("0xA0569: An error occured while parsing malformed JSON "+wrapExceptionMessage(e));
     }
     return result;
   }
-  
+
+  /**
+   * If object member tracing is enabled, getter-methods of Json objects are tracked to identify,
+   * if any members have been forgotten during deserialization
+   */
+  public static void enableObjectMemberTracing() {
+    JsonElementFactory.setInstance(new JsonElementFactory() {
+      @Override
+      protected JsonObject doCreateJsonObject() {
+        return new TraceableJsonObject();
+      }
+    });
+  }
+
+  /**
+   * Disables object member tracing.
+   * @see JsonParser#enableObjectMemberTracing()
+   */
+  public static void disableObjectMemberTracing() {
+    JsonElementFactory.setInstance(new JsonElementFactory());
+  }
+
+  static {
+    //by default, enableObjectMemberTracing
+    enableObjectMemberTracing();
+  }
+
+  private static String wrapExceptionMessage(IOException e){
+    return e.getMessage().replace("Use JsonReader.setLenient(true) to accept malformed JSON ","");
+  }
+
 }

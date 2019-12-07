@@ -1,6 +1,6 @@
 <#-- (c) https://github.com/MontiCore/monticore -->
 
-${tc.signature("astType", "astPackage", "cd")}
+${tc.signature("astType", "astPackage", "cd", "grammar")}
 <#assign genHelper = glex.getGlobalVar("odHelper")>
 
 <#-- Copyright -->
@@ -35,19 +35,18 @@ public class ${genHelper.getCdName()}2OD implements ${genHelper.getCdName()}Visi
   }
 
   <#list cd.getTypes() as type>
-    <#if type.isClass()>
+    <#if type.isIsClass()>
       <#assign astName = genHelper.getJavaASTName(type)>
-      <#assign symbolName = genHelper.getASTClassNameWithoutPrefix(genHelper.getCdName(astName))>
 
       @Override
       public void handle(${astName} node) {
         String name = StringTransformations.uncapitalize(reporting.getASTNodeNameFormatted(node));
         printObject(name, "${astName}");
         pp.indent();
-      <#assign symbolName=genHelper.getSymbolName(astName, genHelper)>
+      <#assign symbolName=genHelper.getSymbolName(astName, grammar)>
       <#if symbolName.isPresent()>
-        if (node.isPresent${symbolName.get()}Symbol()) {
-          String symName = StringTransformations.uncapitalize(reporting.getSymbolNameFormatted(node.get${symbolName.get()}SymbolOpt().get()));
+        if (node.isPresentSymbol()) {
+        String symName = StringTransformations.uncapitalize(reporting.getSymbolNameFormatted(node.getSymbol()));
           pp.println("symbol = " + symName + ";");
         } else if (printEmptyOptional) {
           pp.println("symbol = absent;");
@@ -55,22 +54,18 @@ public class ${genHelper.getCdName()}2OD implements ${genHelper.getCdName()}Visi
       </#if>
           String scopeName = StringTransformations.uncapitalize(reporting.getScopeNameFormatted(node.getEnclosingScope()));
           pp.println("enclosingScope = " + scopeName + ";");
-      <#if genHelper.isScopeClass(astName, genHelper)>
-        if (node.isPresentSpanned${genHelper.getCdName()}Scope()) {
+      <#if genHelper.isScopeClass(astName, grammar)>
           String spannedScopeName = StringTransformations.uncapitalize(reporting.getScopeNameFormatted(node.getSpannedScope()));
           pp.println("spanningScope = " + spannedScopeName + ";");
-        } else if (printEmptyOptional) {
-          pp.println("spannedScope = absent;");
-        }
       </#if>
        <#list type.getAllVisibleFields() as field>
           <#if genHelper.isAstNode(field) || genHelper.isOptionalAstNode(field) >
             <#assign attrGetter = genHelper.getPlainGetter(field)>
             <#if genHelper.isOptional(field)>
-        if (node.${attrGetter}().isPresent()) {
+        if (node.isPresent${genHelper.getNativeAttributeName(field.getName())?cap_first}()) {
      		  pp.print("${field.getName()}");
    			  pp.print(" = ");
-          node.${attrGetter}().get().accept(getRealThis());
+          node.${attrGetter}().accept(getRealThis());
           pp.println(";");
         } else if (printEmptyOptional) {
           pp.println("${field.getName()} = absent;");
@@ -85,7 +80,7 @@ public class ${genHelper.getCdName()}2OD implements ${genHelper.getCdName()}Visi
             </#if>
           <#elseif genHelper.isListAstNode(field)>
             <#assign attrGetter = genHelper.getPlainGetter(field)>
-            <#assign astChildTypeName = genHelper.getAstClassNameForASTLists(field)>
+            <#assign astChildTypeName = genHelper.getAstClassNameForASTLists(field.getType())>
         {
         Iterator<${astChildTypeName}> iter_${field.getName()} = node.${attrGetter}().iterator();
         boolean isEmpty = true;
@@ -113,8 +108,8 @@ public class ${genHelper.getCdName()}2OD implements ${genHelper.getCdName()}Visi
           }
         }
         <#elseif genHelper.isOptional(field)>
-        if (node.${genHelper.getPlainGetter(field)}().isPresent()) {
-          printAttribute("${field.getName()}", "\"" + String.valueOf(node.${genHelper.getPlainGetter(field)}().get()) + "\"");
+        if (node.isPresent${genHelper.getNativeAttributeName(field.getName())?cap_first}()) {
+          printAttribute("${field.getName()}", "\"" + String.valueOf(node.${genHelper.getPlainGetter(field)}()) + "\"");
         } else if (printEmptyOptional) {
           pp.println("${field.getName()} = absent;");
         }

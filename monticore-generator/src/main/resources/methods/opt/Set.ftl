@@ -1,3 +1,3 @@
 <#-- (c) https://github.com/MontiCore/monticore -->
-${tc.signature("attribute")}
-    this.${attribute.getName()} = Optional.ofNullable(${attribute.getName()});
+${tc.signature("attribute", "nativeAttributeName")}
+this.${attribute.getName()} = Optional.ofNullable(${attribute.getName()});

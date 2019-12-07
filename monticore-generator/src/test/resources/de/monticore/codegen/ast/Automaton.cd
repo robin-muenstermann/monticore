@@ -5,7 +5,9 @@ import de.monticore.codegen.ast.Lexicals.*;
 
 classdiagram Automaton {
 
-    <<scope, symbol>> public class ASTAutomaton{
+    public interface ASTAutomatonNode;
+
+    <<scope, symbol, startProd>> public class ASTAutomaton{
       protected String name;
       <<astType>> protected java.util.List<de.monticore.codegen.ast.automaton._ast.ASTState> states;
       <<astType>> protected java.util.List<de.monticore.codegen.ast.automaton._ast.ASTTransition> transitions;
@@ -22,6 +24,8 @@ classdiagram Automaton {
       protected String input;
       protected String to;
     }
+
+    public abstract class ASTAbstractClass {}
 
     enum AutomatonLiterals{
       FINAL,

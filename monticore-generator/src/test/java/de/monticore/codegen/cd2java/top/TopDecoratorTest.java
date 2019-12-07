@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import static de.monticore.codegen.cd2java.DecoratorAssert.assertDeepEquals;
-import static de.monticore.codegen.cd2java.factories.CDModifier.*;
+import static de.monticore.cd.facade.CDModifier.*;
 import static org.junit.Assert.assertEquals;
 
 public class TopDecoratorTest extends DecoratorTestCase {
@@ -37,7 +37,7 @@ public class TopDecoratorTest extends DecoratorTestCase {
   @Test
   public void testHandWrittenClassFound() {
     Mockito.when(targetPath.getResolvedPath(Mockito.any(Path.class))).thenReturn(Optional.of(Mockito.mock(Path.class)));
-    ASTCDDefinition ast = this.topDecorator.decorate(this.topCD, this.topCD.deepClone()).getCDDefinition();
+    ASTCDDefinition ast = this.topDecorator.decorate(this.topCD).getCDDefinition();
 
     assertEquals(1, ast.getCDClassList().size());
     ASTCDClass cdClass = ast.getCDClassList().get(0);
@@ -63,7 +63,7 @@ public class TopDecoratorTest extends DecoratorTestCase {
   @Test
   public void testHandWrittenClassNotFound() {
     Mockito.when(targetPath.exists(Mockito.any(Path.class))).thenReturn(false);
-    ASTCDDefinition ast = this.topDecorator.decorate(this.topCD, this.topCD.deepClone()).getCDDefinition();
+    ASTCDDefinition ast = this.topDecorator.decorate(this.topCD).getCDDefinition();
 
     assertEquals(1, ast.getCDClassList().size());
     ASTCDClass cdClass = ast.getCDClassList().get(0);
