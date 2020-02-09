@@ -65,7 +65,7 @@ As a consequence using MontiCore during development is rather flexible
 and the final products do not have any restriction.
 
  
-## MontiCore 3-Level License on files (informal description)
+## MontiCore 3-Level License on files (informal overview)
 
 The MontiCore language workbench contains three kinds of artifacts: 
 
@@ -85,6 +85,8 @@ generate the final product.
  
 If questions appear e.g. on building an interpreter, please contact 
 monticore@se-rwth.de. 
+
+* [Licenses](00.org/Licenses/LICENSE-MONTICORE-3-LEVEL.md) - MontiCore 3-Level License
 
 
 ## General disclaimer
