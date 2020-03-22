@@ -6,8 +6,8 @@
 
 [MontiCore](http://www.monticore.de) is a language workbench for an efficient 
 development of domain-specific languages (DSLs). It processes an extended 
-grammar format which defines the DSL and generates  components for processing 
-the documents written in the DSL. Examples for these components are parser, 
+grammar format which defines the DSL and generates Java components for processing 
+the DSL documents. Examples for these components are parser, 
 AST classes, symboltables or pretty 
 printers. This enables a user to rapidly define a language and use it together 
 with the MontiCore-framework to build domain specific tools. 
@@ -15,7 +15,7 @@ with the MontiCore-framework to build domain specific tools.
 Some MontiCore advantages are the reusability of predefined language 
 components, conservative extension and composition mechanisms and an 
 optimal integration of hand-written code into the generated tools. Its 
-grammar languages is rather comfortable. 
+grammar languages are rather comfortable. 
 
 ## Information about MontiCore
 
