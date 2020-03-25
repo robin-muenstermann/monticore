@@ -20,9 +20,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * TODO
  *
- * @author (last commit)
- * @version , 08.11.2019
- * @since TODO
  */
 public class DeSerMapTest {
 
