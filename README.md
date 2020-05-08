@@ -26,12 +26,16 @@ grammar might help:
       @Override
       Transition = from:State ":" Expression? "->" to:State
 
-      // add 
+      // add new variants of expressions
       LogicalNotExpr implements Expression = "!" Expression;
-      PlusExpr       implements Expression = left:Expression operator:("+" | "-") right:Expression;
+
+      XorExpr        implements Expression =
+            left:Expression "xor" right:Expression;
+
       scope LetExpr  implements Expression =
-            "let" (VarDeclaration || ";")+ "in" Expression;
-      symbol VarDeclaration                = Type? Name "=" Expression
+            "let" (VarDeclaration || ",")+ "in" Expression;
+
+      symbol VarDeclaration = Type? Name "=" Expression
     }
 
 The grammar language has a variety of mechanisms to define
@@ -44,12 +48,12 @@ and overrides `Transition`,
 which is inherited from `Statemachine`.
 `Transition` becomes an optional `Expression?` as 
 firing condition.
-`LogicalNotExpr`, `PlusExpr`, and `LetExpr` extend the already existing
+`LogicalNotExpr`, `XorExpr`, and `LetExpr` extend the already existing
 `Expression` nonterminal and add new forms of expressions.
 
 `LetExpr` introduces a new local variable, which is
 visible only in that `scope` (indicated by keyword).
-`VarDeclaration` defines the new form of `symbol`.
+`VarDeclaration` defines the new place to define `symbol`s (that have a `Name`).
 Heavy infrastructure exists to manage definition of names, visibility, etc.
 
 MontiCore compiles the above grammar 
