@@ -7,13 +7,8 @@
 development of domain-specific languages (DSLs). It processes an extended 
 grammar format which defines the DSL and generates Java components for processing 
 the DSL documents. Examples for these components are parser, 
-<<<<<<< HEAD
-AST classes, symboltables or pretty 
-printers. This enables a user to rapidly define a language and use it together 
-=======
 AST classes, symboltables or pretty printers.
 This enables a user to rapidly define a language and use it together 
->>>>>>> acaafeda4bcc3ca9f9f7dedc266d1bf681db70ba
 with the MontiCore-framework to build domain specific tools. 
 
 Some MontiCore advantages are the reusability of predefined language 
@@ -21,9 +16,6 @@ components, conservative extension and composition mechanisms and an
 optimal integration of hand-written code into the generated tools. Its 
 grammar languages are rather comfortable. 
 
-<<<<<<< HEAD
-## Information about MontiCore
-=======
 ## A Teaser for MontiCore
 
 To show a little of MontiCore's capabilities, the following (incomplete) 
@@ -88,7 +80,6 @@ Please also note that `PlusExpr` is mutually left-recursive
 
 * [**MontiCore Online Demonstrator**]().
    (TODO: needs to be released)
->>>>>>> acaafeda4bcc3ca9f9f7dedc266d1bf681db70ba
 
 * [**MontiCore Reference Manual**](http://monticore.de/MontiCore_Reference-Manual.2017.pdf).
    The reference Manual describes how to use MontiCore as a out-of-the-box 
@@ -116,7 +107,7 @@ Please also note that `PlusExpr` is mutually left-recursive
 Summary: This project is freely available software; you can redistribute 
 the MontiCore language workbench according to the following rules.
 
-The MontiCore Languag Workbench deals with three levels of code 
+Details: The MontiCore Languag Workbench deals with three levels of code 
 (MontiCore, tool derivates, product code). Each with different 
 licenses: 
 
@@ -135,37 +126,10 @@ pushed back into this LPGL repository (LGPL license).
 As a consequence using MontiCore during development is rather flexible 
 and the final products do not have any restriction.
 
-<<<<<<< HEAD
- 
-## MontiCore 3-Level License on files (informal overview)
-
-The MontiCore language workbench contains three kinds of artifacts: 
-
-* Java-files that are executed in the MontiCore LWB. They are under 
-LGPL licence.
-
-* Java-files that belong to the runtime environment (RTE) and are thus 
-copied to the generated code. They are under BSD 3 Clause license.
-
-* Templates executed during generation. They are also under BSD 3 
-Clause license, because parts of them are copied to the generated code. 
-
-This approach achieves the goals described above.
-
-Please note that tool builders design their own templates and RTE to 
-generate the final product. 
- 
 If questions appear e.g. on building an interpreter, please contact 
 monticore@se-rwth.de. 
 
-* [Licenses](00.org/Licenses/LICENSE-MONTICORE-3-LEVEL.md) - MontiCore 3-Level License
 
-
-=======
-If questions appear e.g. on building an interpreter, please contact 
-monticore@se-rwth.de. 
-
->>>>>>> acaafeda4bcc3ca9f9f7dedc266d1bf681db70ba
 ## General disclaimer
 
 (Repeated from the the BSD 3 Clause license): 
