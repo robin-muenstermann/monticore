@@ -15,6 +15,8 @@ public class FieldSymbol extends FieldSymbolTOP {
     clone.setAccessModifier(this.accessModifier);
     clone.setEnclosingScope(this.enclosingScope);
     clone.setFullName(this.fullName);
+    clone.setIsStatic(this.isStatic);
+    clone.setIsParameter(this.isParameter);
     if(isPresentAstNode()) {
       clone.setAstNode(this.getAstNode());
     }

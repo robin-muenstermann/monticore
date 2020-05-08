@@ -18,6 +18,10 @@ public class ParserService extends AbstractService<ParserService> {
     super(cdSymbol);
   }
 
+  /**
+   * overwrite methods of AbstractService to add the correct '_parser' package for Parser generation
+   */
+
   @Override
   public String getSubPackage() {
     return PARSER_PACKAGE;
@@ -32,8 +36,8 @@ public class ParserService extends AbstractService<ParserService> {
     return new ParserService(cdSymbol);
   }
 
-         /*
-    parser class names e.g. AutomataParser
+  /**
+   * parser class names e.g. AutomataParser
    */
 
   public String getParserClassFullName(CDDefinitionSymbol cdSymbol) {
