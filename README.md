@@ -35,7 +35,7 @@ grammar might help:
       scope LetExpr  implements Expression =
             "let" (VarDeclaration || ",")+ "in" Expression;
 
-      symbol VarDeclaration = Type? Name "=" Expression
+      symbol VarDeclaration = Type? Name "=" Expression ;
     }
 
 The grammar language has a variety of mechanisms to define
